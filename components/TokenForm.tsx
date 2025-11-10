@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import type { TokenData } from '../types';
 import { UploadIcon } from './icons/UploadIcon';
@@ -46,9 +45,9 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-brand-text-secondary mb-2">{label}</label>
       {type === 'textarea' ? (
-        <textarea id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} rows={4} className="w-full bg-brand-bg border border-brand-primary/30 rounded-lg p-3 focus:ring-2 focus:ring-solana-purple focus:border-solana-purple outline-none transition duration-200" />
+        <textarea id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} rows={4} className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200" />
       ) : (
-        <input type={type} id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} className="w-full bg-brand-bg border border-brand-primary/30 rounded-lg p-3 focus:ring-2 focus:ring-solana-purple focus:border-solana-purple outline-none transition duration-200" />
+        <input type={type} id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200" />
       )}
       {maxLength && <p className="text-xs text-right text-brand-text-secondary mt-1">{value.length}/{maxLength}</p>}
     </div>
@@ -64,15 +63,15 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       
       <div>
         <label className="block text-sm font-medium text-brand-text-secondary mb-2">Token Image</label>
-        <div className="mt-2 flex justify-center rounded-lg border-2 border-dashed border-brand-primary/50 px-6 py-10 hover:border-solana-purple transition-colors duration-200">
+        <div className="mt-2 flex justify-center rounded-lg border-2 border-dashed border-brand-border px-6 py-10 hover:border-brand-accent transition-colors duration-200">
           <div className="text-center">
             {image ? (
               <img src={image.previewUrl} alt="Token preview" className="mx-auto h-24 w-24 rounded-full object-cover" />
             ) : (
               <UploadIcon className="mx-auto h-12 w-12 text-brand-text-secondary" />
             )}
-            <div className="mt-4 flex text-sm leading-6 text-gray-400">
-              <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-semibold text-solana-green focus-within:outline-none focus-within:ring-2 focus-within:ring-solana-green focus-within:ring-offset-2 focus-within:ring-offset-brand-surface hover:text-solana-purple">
+            <div className="mt-4 flex text-sm leading-6 text-brand-text-secondary">
+              <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-semibold text-brand-accent focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 focus-within:ring-offset-brand-surface hover:text-brand-accent-hover">
                 <span>Upload an image</span>
                 <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleImageChange} />
               </label>
@@ -89,24 +88,24 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-brand-text-secondary mb-2">Token Supply</label>
-            <div className="w-full bg-brand-bg border border-brand-primary/30 rounded-lg p-3 text-brand-text-secondary">1,000,000,000</div>
+            <div className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text-secondary">1,000,000,000</div>
           </div>
           <div>
             <label className="block text-sm font-medium text-brand-text-secondary mb-2">Decimals</label>
-            <div className="w-full bg-brand-bg border border-brand-primary/30 rounded-lg p-3 text-brand-text-secondary">9</div>
+            <div className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text-secondary">9</div>
           </div>
       </div>
       
-      <div className="space-y-4 rounded-lg bg-brand-bg/50 p-4 border border-brand-primary/20">
+      <div className="space-y-4 rounded-lg bg-brand-bg/50 p-4 border border-brand-border">
         <h3 className="font-semibold text-brand-text">Authority Settings</h3>
         <div className="flex items-center">
-            <div className="h-5 w-5 flex items-center justify-center rounded bg-solana-green text-black">
+            <div className="h-5 w-5 flex items-center justify-center rounded bg-brand-accent text-black">
                 <CheckIcon className="h-4 w-4" />
             </div>
             <span className="ml-3 text-sm text-brand-text-secondary">Revoke Mint Authority</span>
         </div>
         <div className="flex items-center">
-            <div className="h-5 w-5 flex items-center justify-center rounded bg-solana-green text-black">
+            <div className="h-5 w-5 flex items-center justify-center rounded bg-brand-accent text-black">
                 <CheckIcon className="h-4 w-4" />
             </div>
             <span className="ml-3 text-sm text-brand-text-secondary">Revoke Freeze Authority</span>
@@ -114,7 +113,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       </div>
 
       <div>
-        <button type="submit" disabled={!isFormValid || isLoading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-black bg-gradient-to-r from-solana-green to-cyan-400 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-solana-green transition-all duration-300">
+        <button type="submit" disabled={!isFormValid || isLoading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
           {isLoading ? (
             <>
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

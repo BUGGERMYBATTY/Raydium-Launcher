@@ -2,7 +2,6 @@ import React, { useState, useCallback } from 'react';
 import TokenForm from './components/TokenForm';
 import TokenResult from './components/TokenResult';
 import type { TokenData, CreatedTokenInfo } from './types';
-import { SolanaIcon } from './components/icons/SolanaIcon';
 import ConnectWalletButton from './components/ConnectWalletButton';
 import WalletSelectionModal from './components/WalletSelectionModal';
 
@@ -75,18 +74,22 @@ const App: React.FC = () => {
           </div>
           
           <header className="text-center mb-8">
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <SolanaIcon className="h-12 w-12" />
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-solana-green to-solana-purple">
-                Solana Token Creator
+            <div className="flex items-center justify-center mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent-hover to-brand-accent">
+                  VYPER
+                </span>
+                <span className="text-brand-text">
+                  {' '}LAUNCHER
+                </span>
               </h1>
             </div>
             <p className="text-brand-text-secondary text-lg">
-              Easily create your SPL token for the Solana ecosystem.
+              Launch. Wait. Strike!
             </p>
           </header>
 
-          <main className="bg-brand-surface rounded-2xl shadow-2xl p-6 md:p-10 transition-all duration-300 min-h-[480px] flex flex-col items-center justify-center">
+          <main className="bg-brand-surface border border-brand-border rounded-2xl shadow-2xl shadow-brand-accent/10 p-6 md:p-10 transition-all duration-300 min-h-[480px] flex flex-col items-center justify-center">
             {walletAddress ? (
               <div className="w-full">
                 {view === 'form' ? (
@@ -101,7 +104,7 @@ const App: React.FC = () => {
                 <p className="mt-2 text-brand-text-secondary/80">Your wallet is required to set token authority.</p>
                 <button
                   onClick={handleOpenWalletModal}
-                  className="mt-6 bg-gradient-to-r from-solana-green to-cyan-400 text-black font-semibold py-3 px-6 rounded-lg shadow-md hover:opacity-90 transition-opacity duration-200"
+                  className="mt-6 bg-brand-accent text-white font-semibold py-3 px-6 rounded-lg shadow-lg shadow-brand-accent/20 hover:bg-brand-accent-hover hover:shadow-glow-green transition-all duration-300"
                 >
                   Connect Wallet
                 </button>
@@ -110,7 +113,7 @@ const App: React.FC = () => {
           </main>
 
           <footer className="text-center mt-8 text-sm text-brand-text-secondary">
-            <p>This tool simplifies token creation parameters for launching on Raydium.</p>
+            <p>Launch your token on the Solana ecosystem.</p>
             <p>&copy; {new Date().getFullYear()} All rights reserved.</p>
           </footer>
         </div>
