@@ -1,0 +1,5 @@
+{
+  "name": "Solana Token Creator",
+  "description": "A user-friendly application to specify the details for a new Solana SPL token, designed for easy launching on platforms like Raydium.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,77 @@
+
+import React, { useState, useCallback } from 'react';
+import type { CreatedTokenInfo } from '../types';
+import { CopyIcon } from './icons/CopyIcon';
+import { CheckIcon } from './icons/CheckIcon';
+
+interface TokenResultProps {
+  tokenInfo: CreatedTokenInfo;
+  onReset: () => void;
+}
+
+const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(tokenInfo.address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [tokenInfo.address]);
+
+  return (
+    <div className="text-center animate-fade-in">
+      <h2 className="text-3xl font-bold text-solana-green mb-4">Token Created Successfully!</h2>
+      <p className="text-brand-text-secondary mb-8">
+        Your new SPL token is live on the Solana blockchain.
+      </p>
+
+      <div className="bg-brand-bg rounded-xl p-6 mb-8 border border-brand-primary/30 flex flex-col md:flex-row items-center gap-6">
+        <img src={tokenInfo.image.previewUrl} alt={tokenInfo.name} className="h-24 w-24 rounded-full object-cover border-4 border-solana-purple flex-shrink-0" />
+        <div className="text-left flex-grow w-full">
+          <h3 className="text-2xl font-bold">{tokenInfo.name} ({tokenInfo.symbol})</h3>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label className="text-xs font-mono text-brand-text-secondary">TOKEN ADDRESS</label>
+              <div className="flex items-center gap-2">
+                <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface/50 p-2 rounded-md flex-grow">{tokenInfo.address}</p>
+                <button onClick={handleCopy} className="flex-shrink-0 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 bg-solana-purple hover:bg-solana-purple/80 text-white">
+                  {copied ? (
+                    <>
+                      <CheckIcon className="h-5 w-5" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="h-5 w-5" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-mono text-brand-text-secondary">OWNER / AUTHORITY</label>
+              <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface/50 p-2 rounded-md">{tokenInfo.ownerAddress}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-brand-bg/50 p-6 rounded-lg text-left border border-brand-primary/20">
+        <h3 className="font-semibold text-xl mb-4 text-solana-green">Next Steps: Launch on Raydium</h3>
+        <ol className="list-decimal list-inside space-y-2 text-brand-text-secondary">
+          <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-solana-purple hover:underline">Raydium Create Pool</a> page.</li>
+          <li>Connect your wallet.</li>
+          <li>Paste your new token address to set up the liquidity pool.</li>
+          <li>Follow the instructions on Raydium to complete the launch.</li>
+        </ol>
+      </div>
+
+      <button onClick={onReset} className="mt-8 w-full py-3 px-4 border border-solana-purple rounded-lg shadow-sm text-sm font-medium text-solana-purple hover:bg-solana-purple hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-solana-purple transition-colors duration-300">
+        Create Another Token
+      </button>
+    </div>
+  );
+};
+
+export default TokenResult;
