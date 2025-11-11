@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5a6c19771b2038fb048a22deec7da9933aaaf50f
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
