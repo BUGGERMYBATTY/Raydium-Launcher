@@ -1,0 +1,42 @@
+import React from 'react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { useWalletConnection } from '../hooks/useWalletConnection';
+
+const ConnectWalletButton: React.FC = () => {
+  const { walletAddress, connected, disconnect } = useWalletConnection();
+  const { setVisible } = useWalletModal();
+
+  const handleConnect = () => {
+    setVisible(true);
+  };
+
+  if (connected && walletAddress) {
+    const truncatedAddress = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+    return (
+      <div className="relative group">
+        <button className="bg-brand-surface border border-brand-border text-brand-text font-semibold py-2 px-4 rounded-lg shadow-md hover:border-brand-accent transition-all duration-200">
+          {truncatedAddress}
+        </button>
+        <div className="absolute top-full right-0 mt-2 w-40 bg-brand-surface border border-brand-border rounded-md shadow-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto z-10">
+          <button
+            onClick={disconnect}
+            className="w-full text-left px-3 py-2 text-sm text-brand-text-secondary hover:bg-brand-bg rounded-md"
+          >
+            Disconnect
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleConnect}
+      className="bg-brand-accent text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-brand-accent-hover transition-all duration-200"
+    >
+      Connect Wallet
+    </button>
+  );
+};
+
+export default ConnectWalletButton;
