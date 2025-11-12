@@ -3,10 +3,7 @@ export interface TokenData {
   name: string;
   symbol: string;
   description: string;
-  image: {
-    file: File;
-    previewUrl: string;
-  };
+  image: string; // This will now be the IPFS URL
 }
 
 export interface CreatedTokenInfo extends TokenData {

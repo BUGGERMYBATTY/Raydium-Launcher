@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import type { TokenData } from '../types';
 import { UploadIcon } from './icons/UploadIcon';
 import { CheckIcon } from './icons/CheckIcon';
+import { uploadImageToPinata } from '../lib/pinata';
 
 interface TokenFormProps {
   onSubmit: (data: TokenData) => void;
@@ -12,21 +13,33 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
   const [description, setDescription] = useState('');
-  const [image, setImage] = useState<{ file: File; previewUrl: string } | null>(null);
+  const [image, setImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) { // 2MB limit
-          setError('Image size must be less than 2MB.');
-          return;
-      }
-      setError('');
-      setImage({
-        file,
-        previewUrl: URL.createObjectURL(file),
-      });
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      setError('Image size must be less than 2MB.');
+      return;
+    }
+    setError('');
+    setIsUploading(true);
+    setImage(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const ipfsUrl = await uploadImageToPinata(formData);
+      setImage(ipfsUrl);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error).message || 'Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -73,17 +86,24 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
         <label className="block text-sm font-medium text-brand-text-secondary mb-2">Token Image</label>
         <div className="mt-2 flex justify-center rounded-lg border-2 border-dashed border-brand-border px-6 py-10 hover:border-brand-accent transition-colors duration-200">
           <div className="text-center">
-            {image ? (
-              <img src={image.previewUrl} alt="Token preview" className="mx-auto h-24 w-24 rounded-full object-cover" />
+            {isUploading ? (
+               <div className="mx-auto h-24 w-24 flex items-center justify-center">
+                  <svg className="animate-spin h-10 w-10 text-brand-accent" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+               </div>
+            ) : image ? (
+              <img src={image} alt="Token preview" className="mx-auto h-24 w-24 rounded-full object-cover" />
             ) : (
               <UploadIcon className="mx-auto h-12 w-12 text-brand-text-secondary" />
             )}
             <div className="mt-4 flex text-sm leading-6 text-brand-text-secondary">
               <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-semibold text-brand-accent focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 focus-within:ring-offset-brand-surface hover:text-brand-accent-hover">
-                <span>Upload an image</span>
-                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleImageChange} />
+                <span>{image ? 'Change image' : 'Upload an image'}</span>
+                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleImageChange} disabled={isUploading} />
               </label>
-              <p className="pl-1">or drag and drop</p>
+              {!image && <p className="pl-1">or drag and drop</p>}
             </div>
             <p className="text-xs leading-5 text-brand-text">PNG, JPG, GIF up to 2MB</p>
           </div>
@@ -121,10 +141,10 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       </div>
 
       <div className="relative group">
-        <button type="submit" disabled={!isFormValid || isLoading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
+        <button type="submit" disabled={!isFormValid || isLoading || isUploading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
           {isLoading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -132,7 +152,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
             </>
           ) : 'Create Token'}
         </button>
-        {!isFormValid && !isLoading && (
+        {!isFormValid && !isLoading && !isUploading && (
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max p-2 bg-brand-bg border border-brand-border rounded-md shadow-lg text-sm text-brand-text-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
               <p className="font-semibold text-left">Please complete the following:</p>
               <ul className="list-disc list-inside mt-1 text-left">

@@ -25,7 +25,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
       </p>
 
       <div className="bg-brand-bg-transparent rounded-xl p-6 mb-8 border border-brand-border flex flex-col md:flex-row items-center gap-6 shadow-glow-green">
-        <img src={tokenInfo.image.previewUrl} alt={tokenInfo.name} className="h-24 w-24 rounded-full object-cover border-4 border-brand-accent flex-shrink-0" />
+        <img src={tokenInfo.image} alt={tokenInfo.name} className="h-24 w-24 rounded-full object-cover border-4 border-brand-accent flex-shrink-0" />
         <div className="text-left flex-grow w-full">
           <h3 className="text-2xl font-bold text-brand-text">{tokenInfo.name} ({tokenInfo.symbol})</h3>
           <div className="mt-4 space-y-4">
