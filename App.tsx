@@ -62,48 +62,51 @@ const App: React.FC = () => {
   return (
     <>
       <div className="min-h-screen text-brand-text flex flex-col p-4 font-sans">
-        <header className="w-full flex justify-start items-center mb-4 px-2 md:px-0 ml-2.5">
+        <header className="w-full flex justify-between items-center mb-4 px-2 md:px-0 ml-2.5">
           <img
             src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeidvxvxxx4tipwuymc4hyvjmxw5kt3psz4krqici475ick3jpmsuwa"
-            alt="Cobra Launch Logo"
-            className="h-44"
+            alt="Cobra Launch"
+            className="h-48"
+          />
+          <ConnectWalletButton 
+            walletAddress={walletAddress} 
+            onConnect={handleOpenWalletModal} 
+            onDisconnect={handleDisconnectWallet} 
           />
         </header>
-        
-        <div className="flex-grow flex flex-col items-center justify-start pt-8 pb-16">
-            <div className="w-full max-w-2xl mx-auto relative">
-              <main className="bg-brand-surface/50 backdrop-blur-md border border-brand-border/50 rounded-2xl shadow-2xl shadow-brand-accent/10 p-6 md:p-10 transition-all duration-300 min-h-[480px] flex flex-col items-center justify-center">
-                {walletAddress ? (
-                  <div className="w-full">
-                    {view === 'form' ? (
-                      <TokenForm onSubmit={handleCreateToken} isLoading={isLoading} />
-                    ) : createdTokenInfo ? (
-                      <TokenResult tokenInfo={createdTokenInfo} onReset={handleReset} />
-                    ) : null}
-                  </div>
-                ) : (
-                  <div className="text-center animate-fade-in">
-                    <h2 className="text-2xl font-semibold text-brand-text-secondary">Please connect your wallet</h2>
-                    <p className="mt-2 text-brand-text-secondary/80">Your wallet is required to set token authority.</p>
-                    <button
-                      onClick={handleOpenWalletModal}
-                      className="mt-6 bg-brand-accent text-white font-semibold py-3 px-6 rounded-lg shadow-lg shadow-brand-accent/20 hover:bg-brand-accent-hover hover:shadow-glow-green transition-all duration-300"
+        <main className="flex-grow flex items-center justify-center">
+          <div className="w-full max-w-2xl bg-brand-surface p-8 rounded-2xl shadow-lg border border-brand-border">
+            {view === 'form' && !walletAddress && (
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold mb-4">Create a Solana SPL Token</h1>
+                    <p className="text-brand-text-secondary mb-8">No coding required. Launch your token in minutes.</p>
+                    <button 
+                        onClick={handleOpenWalletModal}
+                        className="bg-brand-accent text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-brand-accent-hover transition-all duration-200 text-lg"
                     >
-                      Connect Wallet
+                        Connect Wallet to Get Started
                     </button>
-                  </div>
-                )}
-              </main>
-
-              <footer className="text-center mt-8 text-sm text-brand-text-secondary">
-                <p>Launch your token on the Solana ecosystem.</p>
-                <p>&copy; {new Date().getFullYear()} All rights reserved.</p>
-              </footer>
-            </div>
-        </div>
+                </div>
+            )}
+            {view === 'form' && walletAddress && (
+              <>
+                <h1 className="text-3xl font-bold mb-2 text-center">Create a New SPL Token</h1>
+                <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
+                <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
+                  Please note: Token Supply, Decimals, and Authority settings are set by default and cannot be changed.
+                </p>
+                <TokenForm onSubmit={handleCreateToken} isLoading={isLoading} />
+              </>
+            )}
+            {view === 'result' && createdTokenInfo && (
+              <TokenResult tokenInfo={createdTokenInfo} onReset={handleReset} />
+            )}
+          </div>
+        </main>
       </div>
+
       <WalletSelectionModal 
-        isOpen={isWalletModalOpen} 
+        isOpen={isWalletModalOpen}
         onClose={handleCloseWalletModal}
         onSelectWallet={handleWalletSelect}
       />
