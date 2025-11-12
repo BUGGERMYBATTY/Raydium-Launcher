@@ -60,7 +60,7 @@ const App: React.FC = () => {
               <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>
               <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
               <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
-                Please note: Token Supply, Decimals, and Authority settings are set by default and cannot be changed.
+                Note: Token Supply, Decimals, and Authority settings are fixed.
               </p>
               <TokenForm onSubmit={handleCreateToken} isLoading={isLoading} />
             </>
