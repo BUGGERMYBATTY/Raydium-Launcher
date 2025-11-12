@@ -102,7 +102,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
               </label>
               {!image && <p className="pl-1">or drag and drop</p>}
             </div>
-            <p className="text-xs leading-5 text-brand-text">PNG, JPG, GIF up to 2MB</p>
+            <p className="text-xs leading-5 text-brand-text-secondary/80">Recommended: 512x512px. PNG, JPG, GIF. Max 2MB.</p>
           </div>
         </div>
         {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
