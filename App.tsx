@@ -62,16 +62,11 @@ const App: React.FC = () => {
   return (
     <>
       <div className="h-screen text-brand-text flex flex-col p-4 font-sans">
-        <div className="w-full flex justify-between items-center mb-4 px-2 md:px-0">
+        <div className="w-full flex justify-start items-center mb-4 px-2 md:px-0">
           <img
             src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeidvxvxxx4tipwuymc4hyvjmxw5kt3psz4krqici475ick3jpmsuwa"
             alt="Cobra Launch Logo"
             className="h-48"
-          />
-          <ConnectWalletButton 
-            walletAddress={walletAddress}
-            onConnect={handleOpenWalletModal}
-            onDisconnect={handleDisconnectWallet}
           />
         </div>
         
