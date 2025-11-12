@@ -3,19 +3,33 @@ import type { TokenData } from '../types';
 import { UploadIcon } from './icons/UploadIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { uploadImageToPinata } from '../lib/pinata';
+import { PublicKey } from '@solana/web3.js';
+
 
 interface TokenFormProps {
-  onSubmit: (data: TokenData) => void;
+  onSubmit: (data: Omit<TokenData, 'image'> & { image: string }) => void;
   isLoading: boolean;
+  isConfirmModalOpen: boolean;
 }
 
-const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
+const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmModalOpen }) => {
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const [treasuryAddress, setTreasuryAddress] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  
+  const isTreasuryAddressValid = useMemo(() => {
+    if (!treasuryAddress) return false;
+    try {
+      new PublicKey(treasuryAddress);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }, [treasuryAddress]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,15 +61,20 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
     if (symbol.length > 10) missing.push('Symbol is too long');
     if (description.trim() === '') missing.push('Description');
     if (image === null) missing.push('Token Image');
+    if (treasuryAddress.trim() === '') {
+        missing.push('Treasury Address');
+    } else if (!isTreasuryAddressValid) {
+        missing.push('Invalid Treasury Address');
+    }
     return missing;
-  }, [name, symbol, description, image]);
+  }, [name, symbol, description, image, treasuryAddress, isTreasuryAddressValid]);
 
   const isFormValid = missingFields.length === 0;
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid && image) {
-      onSubmit({ name, symbol, description, image });
+      onSubmit({ name, symbol, description, image, treasuryAddress });
     }
   };
 
@@ -98,7 +117,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
             <div className="mt-4 flex text-sm leading-6 text-brand-text-secondary">
               <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-semibold text-brand-accent focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-accent focus-within:ring-offset-2 focus-within:ring-offset-brand-surface hover:text-brand-accent-hover">
                 <span>{image ? 'Change image' : 'Upload an image'}</span>
-                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleImageChange} disabled={isUploading} />
+                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/png, image/jpeg, image/gif" onChange={handleImageChange} disabled={isUploading || isConfirmModalOpen} />
               </label>
               {!image && <p className="pl-1">or drag and drop</p>}
             </div>
@@ -109,6 +128,10 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       </div>
 
       <InputField id="token-description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
+
+      <InputField id="treasury-address" label="Treasury Wallet Address" value={treasuryAddress} onChange={(e) => setTreasuryAddress(e.target.value)} placeholder="Wallet address to receive the creation fee" />
+      {!isTreasuryAddressValid && treasuryAddress.length > 0 && <p className="text-sm text-red-500 -mt-4">Please enter a valid Solana wallet address.</p>}
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -142,7 +165,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       </div>
 
       <div className="relative group">
-        <button type="submit" disabled={!isFormValid || isLoading || isUploading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
+        <button type="submit" disabled={!isFormValid || isLoading || isUploading || isConfirmModalOpen} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
           {isLoading ? (
             <>
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -153,7 +176,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
             </>
           ) : 'Create Token'}
         </button>
-        {!isFormValid && !isLoading && !isUploading && (
+        {!isFormValid && !isLoading && !isUploading && !isConfirmModalOpen && (
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max p-2 bg-brand-bg border border-brand-border rounded-md shadow-lg text-sm text-brand-text-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
               <p className="font-semibold text-left">Please complete the following:</p>
               <ul className="list-disc list-inside mt-1 text-left">

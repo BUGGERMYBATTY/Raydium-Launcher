@@ -60,6 +60,10 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
               <label className="text-xs font-mono text-brand-text-secondary">OWNER / AUTHORITY</label>
               <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md">{tokenInfo.ownerAddress}</p>
             </div>
+             <div>
+              <label className="text-xs font-mono text-brand-text-secondary">TREASURY ADDRESS (FEE RECIPIENT)</label>
+              <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md">{tokenInfo.treasuryAddress}</p>
+            </div>
           </div>
         </div>
       </div>

@@ -14,13 +14,14 @@ import { uploadMetadataToPinata } from './lib/pinata';
 const TOKEN_DECIMALS = 9;
 const TOKEN_SUPPLY = 1_000_000_000;
 const CREATION_FEE_SOL = 0.05;
-const FEE_RECIPIENT_ADDRESS = new PublicKey('DpfnnAQb9z5qQsoR6mjNtF6P6HpTj3M17K5BfLmfvBoC');
 
 const App: React.FC = () => {
   const [view, setView] = useState<'form' | 'result'>('form');
   const [isLoading, setIsLoading] = useState(false);
   const [createdTokenInfo, setCreatedTokenInfo] = useState<CreatedTokenInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [tokenDataToConfirm, setTokenDataToConfirm] = useState<TokenData | null>(null);
   
   const wallet = useWallet();
   const { connection } = useConnection();
@@ -35,6 +36,15 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // SAFEGUARD: Explicitly block transactions to the known incorrect address.
+      const FORBIDDEN_ADDRESS = "CobrA111111111111111111111111111111111111111";
+      if (data.treasuryAddress.trim() === FORBIDDEN_ADDRESS) {
+          throw new Error("CRITICAL ERROR: Attempted to send fee to a hardcoded incorrect address. Aborting transaction.");
+      }
+
+      // 0. Set fee recipient
+      const feeRecipient = new PublicKey(data.treasuryAddress);
+
       // 1. Upload metadata to Pinata
       const metadataUri = await uploadMetadataToPinata(data);
       
@@ -61,7 +71,7 @@ const App: React.FC = () => {
       const transaction = new Transaction().add(
         SystemProgram.transfer({
             fromPubkey: wallet.publicKey,
-            toPubkey: FEE_RECIPIENT_ADDRESS,
+            toPubkey: feeRecipient,
             lamports: CREATION_FEE_SOL * LAMPORTS_PER_SOL,
         }),
         SystemProgram.createAccount({
@@ -143,6 +153,18 @@ const App: React.FC = () => {
     }
   }, [wallet, connection]);
 
+  const handleFormSubmit = (data: TokenData) => {
+    setTokenDataToConfirm(data);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmAndCreateToken = async () => {
+    if (tokenDataToConfirm) {
+      setIsConfirmModalOpen(false);
+      await handleCreateToken(tokenDataToConfirm);
+      setTokenDataToConfirm(null);
+    }
+  };
 
   const handleReset = useCallback(() => {
     setView('form');
@@ -158,7 +180,12 @@ const App: React.FC = () => {
           alt="Cobra Launch"
           className="h-48"
         />
-        <WalletMultiButton />
+        <div className="flex items-center gap-4">
+          <div className="text-sm font-semibold text-purple-300 bg-purple-900/50 border border-purple-500 rounded-full px-4 py-1.5">
+            Devnet
+          </div>
+          <WalletMultiButton />
+        </div>
       </header>
       <main className="flex-grow flex items-center justify-center">
         {!wallet.connected ? (
@@ -178,7 +205,7 @@ const App: React.FC = () => {
                 <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
                   Note: Token Supply, Decimals, and Authority settings are fixed.
                 </p>
-                <TokenForm onSubmit={handleCreateToken} isLoading={isLoading} />
+                <TokenForm onSubmit={handleFormSubmit} isLoading={isLoading} isConfirmModalOpen={isConfirmModalOpen} />
                  {error && (
                   <div className="mt-4 p-4 bg-red-900/50 border border-red-500 text-red-300 rounded-lg text-sm">
                     <strong>Error:</strong> {error}
@@ -192,6 +219,47 @@ const App: React.FC = () => {
           </div>
         )}
       </main>
+
+      {isConfirmModalOpen && tokenDataToConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center animate-fade-in p-4">
+          <div className="bg-brand-surface rounded-2xl shadow-2xl p-8 m-4 w-full max-w-lg relative border border-brand-accent/50">
+            <h2 className="text-2xl font-bold mb-4 text-brand-text">Confirm Transaction</h2>
+            <p className="text-brand-text-secondary mb-6">Please review the details below before proceeding.</p>
+            
+            <div className="space-y-4 text-left bg-brand-bg-transparent p-4 rounded-lg border border-brand-border mb-6">
+              <div>
+                <label className="text-xs font-mono text-brand-text-secondary">TOKEN NAME</label>
+                <p className="text-brand-text">{tokenDataToConfirm.name}</p>
+              </div>
+              <div>
+                <label className="text-xs font-mono text-brand-text-secondary">TOKEN SYMBOL</label>
+                <p className="text-brand-text">{tokenDataToConfirm.symbol}</p>
+              </div>
+              <div>
+                <label className="text-xs font-mono text-red-400 font-bold">FEE RECIPIENT (TREASURY)</label>
+                <p className="text-brand-text font-mono break-all bg-brand-surface p-2 rounded mt-1">{tokenDataToConfirm.treasuryAddress}</p>
+              </div>
+              <div>
+                <label className="text-xs font-mono text-red-400 font-bold">FEE AMOUNT</label>
+                <p className="font-bold text-brand-accent">0.05 SOL</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-4">
+              <button onClick={() => setIsConfirmModalOpen(false)} disabled={isLoading} className="py-2 px-4 border border-brand-border rounded-lg text-sm font-medium text-brand-text-secondary hover:border-brand-accent transition-colors disabled:opacity-50">Cancel</button>
+              <button onClick={confirmAndCreateToken} disabled={isLoading} className="w-40 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50">
+                {isLoading ? (
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : 'Confirm & Create'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
