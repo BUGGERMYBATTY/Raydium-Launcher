@@ -16,13 +16,21 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [tokenInfo.address]);
+  
+  const explorerUrl = `https://solscan.io/tx/${tokenInfo.transactionSignature}?cluster=devnet`;
 
   return (
     <div className="text-center animate-fade-in">
       <h2 className="text-3xl font-bold text-brand-accent mb-4">Token Created Successfully!</h2>
-      <p className="text-brand-text-secondary mb-8">
+      <p className="text-brand-text-secondary mb-4">
         Your new Solana token is live on the Solana blockchain.
       </p>
+       <div className="text-sm text-brand-text-secondary mb-8">
+        Transaction successful. View on explorer: {' '}
+        <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">
+          {tokenInfo.transactionSignature.slice(0, 8)}...{tokenInfo.transactionSignature.slice(-8)}
+        </a>
+      </div>
 
       <div className="bg-brand-bg-transparent rounded-xl p-6 mb-8 border border-brand-border flex flex-col md:flex-row items-center gap-6 shadow-glow-green">
         <img src={tokenInfo.image} alt={tokenInfo.name} className="h-24 w-24 rounded-full object-cover border-4 border-brand-accent flex-shrink-0" />

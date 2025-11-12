@@ -9,4 +9,5 @@ export interface TokenData {
 export interface CreatedTokenInfo extends TokenData {
   address: string;
   ownerAddress: string;
+  transactionSignature: string;
 }

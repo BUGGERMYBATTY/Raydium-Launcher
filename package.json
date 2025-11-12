@@ -1,5 +1,5 @@
 {
-  "name": "cobra-launch",
+  "name": "cobra-launch-paid",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -16,6 +16,8 @@
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-wallets": "^0.19.26",
     "@solana/web3.js": "^1.91.4",
+    "@solana/spl-token": "^0.4.6",
+    "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
     "buffer": "^6.0.3"
   },
   "devDependencies": {

@@ -136,6 +136,10 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
             <span className="ml-3 text-sm text-brand-text-secondary">Revoke Freeze Authority</span>
         </div>
       </div>
+      
+      <div className="text-center text-sm text-brand-text-secondary p-3 bg-brand-bg-transparent border border-brand-border rounded-lg">
+        Creation Fee: <span className="font-bold text-brand-accent">0.05 SOL</span>. This covers all transaction costs.
+      </div>
 
       <div className="relative group">
         <button type="submit" disabled={!isFormValid || isLoading || isUploading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
