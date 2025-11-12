@@ -21,7 +21,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
     <div className="text-center animate-fade-in">
       <h2 className="text-3xl font-bold text-brand-accent mb-4">Token Created Successfully!</h2>
       <p className="text-brand-text-secondary mb-8">
-        Your new SPL token is live on the Solana blockchain.
+        Your new Solana token is live on the Solana blockchain.
       </p>
 
       <div className="bg-brand-bg rounded-xl p-6 mb-8 border border-brand-border flex flex-col md:flex-row items-center gap-6">

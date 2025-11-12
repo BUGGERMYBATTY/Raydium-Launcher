@@ -78,7 +78,7 @@ const App: React.FC = () => {
           <div className="w-full max-w-2xl bg-brand-surface p-8 rounded-2xl shadow-lg border border-brand-border">
             {view === 'form' && !walletAddress && (
                 <div className="text-center">
-                    <h1 className="text-4xl font-bold mb-4">Create a Solana SPL Token</h1>
+                    <h1 className="text-4xl font-bold mb-4">Create a Solana Token</h1>
                     <p className="text-brand-text-secondary mb-8">No coding required. Launch your token in minutes.</p>
                     <button 
                         onClick={handleOpenWalletModal}
@@ -90,7 +90,7 @@ const App: React.FC = () => {
             )}
             {view === 'form' && walletAddress && (
               <>
-                <h1 className="text-3xl font-bold mb-2 text-center">Create a New SPL Token</h1>
+                <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>
                 <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
                 <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
                   Please note: Token Supply, Decimals, and Authority settings are set by default and cannot be changed.

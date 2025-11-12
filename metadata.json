@@ -1,5 +1,5 @@
 {
   "name": "Cobra Launch",
-  "description": "A user-friendly application to specify the details for a new Solana SPL token, designed for easy launching on platforms like Raydium.",
+  "description": "A user-friendly application to specify the details for a new Solana token, designed for easy launching on platforms like Raydium.",
   "requestFramePermissions": []
 }
