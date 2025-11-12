@@ -14,7 +14,7 @@ import { uploadMetadataToPinata } from './lib/pinata';
 const TOKEN_DECIMALS = 9;
 const TOKEN_SUPPLY = 1_000_000_000;
 const CREATION_FEE_SOL = 0.05;
-const FEE_RECIPIENT_ADDRESS = new PublicKey('CobrA111111111111111111111111111111111111111');
+const FEE_RECIPIENT_ADDRESS = new PublicKey('DpfnnAQb9z5qQsoR6mjNtF6P6HpTj3M17K5BfLmfvBoC');
 
 const App: React.FC = () => {
   const [view, setView] = useState<'form' | 'result'>('form');
