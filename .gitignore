@@ -1,24 +1,3 @@
-<<<<<<< HEAD
-# dependencies
-node_modules/
-# builds
-dist/
-build/
-# env files (do NOT commit secrets)
-.env
-.env.local
-backend/.env
-frontend/.env
-frontend/.env.local
-# IDE/OS
-.vscode/
-.DS_Store
-Thumbs.db
-# logs
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-=======
 # Logs
 logs
 *.log
@@ -43,4 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
->>>>>>> 5a6c19771b2038fb048a22deec7da9933aaaf50f
