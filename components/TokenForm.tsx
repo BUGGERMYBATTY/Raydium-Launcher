@@ -53,9 +53,9 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-brand-text-secondary mb-2">{label}</label>
       {type === 'textarea' ? (
-        <textarea id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} rows={4} className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200" />
+        <textarea id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} rows={4} className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200" />
       ) : (
-        <input type={type} id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200" />
+        <input type={type} id={id} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text focus:ring-2 focus:ring-brand-accent focus:border-brand-accent outline-none transition duration-200" />
       )}
       {maxLength && <p className="text-xs text-right text-brand-text-secondary mt-1">{value.length}/{maxLength}</p>}
     </div>
@@ -96,15 +96,15 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-brand-text-secondary mb-2">Token Supply</label>
-            <div className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text-secondary">1,000,000,000</div>
+            <div className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text-secondary">1,000,000,000</div>
           </div>
           <div>
             <label className="block text-sm font-medium text-brand-text-secondary mb-2">Decimals</label>
-            <div className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text-secondary">9</div>
+            <div className="w-full bg-brand-bg-transparent border border-brand-border rounded-lg p-3 text-brand-text-secondary">9</div>
           </div>
       </div>
       
-      <div className="space-y-4 rounded-lg bg-brand-bg/50 p-4 border border-brand-border">
+      <div className="space-y-4 rounded-lg bg-brand-bg-transparent p-4 border border-brand-border shadow-glow-green">
         <h3 className="font-semibold text-brand-text">Authority Settings</h3>
         <div className="flex items-center">
             <div className="h-5 w-5 flex items-center justify-center rounded bg-brand-accent text-black">
@@ -124,7 +124,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
         <button type="submit" disabled={!isFormValid || isLoading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
           {isLoading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>

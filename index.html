@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Saira+Stencil+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@solana/wallet-adapter-react-ui@latest/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -20,6 +21,9 @@
             colors: {
               'brand-bg': '#111111',
               'brand-surface': '#1E1E1E',
+              'brand-bg-transparent': 'rgba(17, 17, 17, 0.65)',
+              'brand-bg-transparent-hover': 'rgba(17, 17, 17, 0.75)',
+              'brand-surface-transparent': 'rgba(30, 30, 30, 0.65)',
               'brand-accent': '#39FF14',
               'brand-accent-hover': '#7CFF6B',
               'brand-text': '#F5F5F5',
@@ -27,7 +31,7 @@
               'brand-border': '#333333',
             },
             boxShadow: {
-              'glow-green': '0 0 15px 0 rgba(57, 255, 20, 0.5)',
+              'glow-green': '0 0 20px 0 rgba(57, 255, 20, 0.5)',
             }
           },
         },
@@ -41,13 +45,62 @@
         background-repeat: no-repeat;
         background-attachment: fixed;
       }
+      .wallet-adapter-button {
+        background-color: #39FF14 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+      }
+      .wallet-adapter-button:hover {
+        background-color: #7CFF6B !important;
+      }
+      .wallet-adapter-button-trigger {
+        background-color: rgba(30, 30, 30, 0.65) !important;
+        border: 1px solid #333333 !important;
+      }
+       .wallet-adapter-button-trigger:hover {
+        border-color: #39FF14 !important;
+       }
+      .wallet-adapter-modal-wrapper {
+        background-color: rgba(0, 0, 0, 0.7) !important;
+      }
+      .wallet-adapter-modal-container {
+        background: #1E1E1E !important;
+        border-radius: 1rem !important;
+        border: 1px solid rgba(57, 255, 20, 0.5) !important;
+        box-shadow: 0 0 20px 0 rgba(57, 255, 20, 0.5) !important;
+      }
+      .wallet-adapter-dropdown {
+        background-color: rgba(30, 30, 30, 0.65) !important;
+        border-radius: 1rem !important;
+        border: 1px solid #333333 !important;
+        box-shadow: 0 0 20px 0 rgba(57, 255, 20, 0.5) !important;
+      }
+      .wallet-adapter-modal-title {
+        color: #F5F5F5 !important;
+      }
+      .wallet-adapter-modal-list .wallet-adapter-button {
+        background: rgba(17, 17, 17, 0.65) !important;
+        border: 1px solid #333333 !important;
+      }
+      .wallet-adapter-modal-list .wallet-adapter-button:hover {
+        background: rgba(17, 17, 17, 0.75) !important;
+        border-color: #39FF14 !important;
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@solana/wallet-adapter-react": "https://aistudiocdn.com/@solana/wallet-adapter-react@^0.15.35",
+    "@solana/wallet-adapter-react-ui": "https://aistudiocdn.com/@solana/wallet-adapter-react-ui@^0.9.35",
+    "@solana/wallet-adapter-base": "https://aistudiocdn.com/@solana/wallet-adapter-base@^0.9.23",
+    "@solana/wallet-adapter-wallets": "https://aistudiocdn.com/@solana/wallet-adapter-wallets@^0.19.26",
+    "@solana/web3.js": "https://aistudiocdn.com/@solana/web3.js@^1.91.4",
+    "buffer/": "https://aistudiocdn.com/buffer@^6.0.3/"
   }
 }
 </script>

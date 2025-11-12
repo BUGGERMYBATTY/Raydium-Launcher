@@ -24,7 +24,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
         Your new Solana token is live on the Solana blockchain.
       </p>
 
-      <div className="bg-brand-bg rounded-xl p-6 mb-8 border border-brand-border flex flex-col md:flex-row items-center gap-6">
+      <div className="bg-brand-bg-transparent rounded-xl p-6 mb-8 border border-brand-border flex flex-col md:flex-row items-center gap-6 shadow-glow-green">
         <img src={tokenInfo.image.previewUrl} alt={tokenInfo.name} className="h-24 w-24 rounded-full object-cover border-4 border-brand-accent flex-shrink-0" />
         <div className="text-left flex-grow w-full">
           <h3 className="text-2xl font-bold text-brand-text">{tokenInfo.name} ({tokenInfo.symbol})</h3>
@@ -32,7 +32,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
             <div>
               <label className="text-xs font-mono text-brand-text-secondary">TOKEN ADDRESS</label>
               <div className="flex items-center gap-2">
-                <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface/50 p-2 rounded-md flex-grow">{tokenInfo.address}</p>
+                <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md flex-grow">{tokenInfo.address}</p>
                 <button onClick={handleCopy} className="flex-shrink-0 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 bg-brand-accent hover:bg-brand-accent-hover text-white">
                   {copied ? (
                     <>
@@ -50,13 +50,13 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
             </div>
             <div>
               <label className="text-xs font-mono text-brand-text-secondary">OWNER / AUTHORITY</label>
-              <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface/50 p-2 rounded-md">{tokenInfo.ownerAddress}</p>
+              <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md">{tokenInfo.ownerAddress}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-brand-bg/50 p-6 rounded-lg text-left border border-brand-border">
+      <div className="bg-brand-bg-transparent p-6 rounded-lg text-left border border-brand-border shadow-glow-green">
         <h3 className="font-semibold text-xl mb-4 text-brand-accent">Next Steps: Launch on Raydium</h3>
         <ol className="list-decimal list-inside space-y-2 text-brand-text-secondary">
           <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">Raydium Create Pool</a> page.</li>
