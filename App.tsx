@@ -61,18 +61,18 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="h-screen text-brand-text flex flex-col p-4 font-sans">
-        <div className="w-full flex justify-start items-center mb-4 px-2 md:px-0">
+      <div className="min-h-screen text-brand-text flex flex-col p-4 font-sans">
+        <header className="w-full flex justify-start items-center mb-4 px-2 md:px-0 ml-2.5">
           <img
             src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeidvxvxxx4tipwuymc4hyvjmxw5kt3psz4krqici475ick3jpmsuwa"
             alt="Cobra Launch Logo"
-            className="h-48"
+            className="h-44"
           />
-        </div>
+        </header>
         
-        <div className="flex-grow flex flex-col items-center justify-center">
+        <div className="flex-grow flex flex-col items-center justify-start pt-8 pb-16">
             <div className="w-full max-w-2xl mx-auto relative">
-              <main className="bg-brand-surface/80 backdrop-blur-md border border-brand-border/50 rounded-2xl shadow-2xl shadow-brand-accent/10 p-6 md:p-10 transition-all duration-300 min-h-[480px] flex flex-col items-center justify-center">
+              <main className="bg-brand-surface/50 backdrop-blur-md border border-brand-border/50 rounded-2xl shadow-2xl shadow-brand-accent/10 p-6 md:p-10 transition-all duration-300 min-h-[480px] flex flex-col items-center justify-center">
                 {walletAddress ? (
                   <div className="w-full">
                     {view === 'form' ? (
