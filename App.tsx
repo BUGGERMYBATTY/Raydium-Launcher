@@ -3,13 +3,14 @@ import TokenForm from './components/TokenForm';
 import TokenResult from './components/TokenResult';
 import type { TokenData, CreatedTokenInfo } from './types';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'form' | 'result'>('form');
   const [isLoading, setIsLoading] = useState(false);
   const [createdTokenInfo, setCreatedTokenInfo] = useState<CreatedTokenInfo | null>(null);
   const wallet = useWallet();
+  const { visible: isWalletModalVisible } = useWalletModal();
 
   const handleCreateToken = useCallback((data: TokenData) => {
     if (!wallet.publicKey) {
@@ -47,28 +48,31 @@ const App: React.FC = () => {
         <WalletMultiButton />
       </header>
       <main className="flex-grow flex items-center justify-center">
-        <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-green border border-brand-border">
-          {!wallet.connected && (
-              <div className="text-center">
-                  <h1 className="text-4xl font-bold mb-4">Create a Solana Token</h1>
-                  <p className="text-brand-text-secondary mb-8">No coding required. Launch your token in minutes.</p>
-                  <WalletMultiButton>Connect Wallet to Get Started</WalletMultiButton>
-              </div>
-          )}
-          {wallet.connected && view === 'form' && (
-            <>
-              <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>
-              <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
-              <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
-                Note: Token Supply, Decimals, and Authority settings are fixed.
-              </p>
-              <TokenForm onSubmit={handleCreateToken} isLoading={isLoading} />
-            </>
-          )}
-          {wallet.connected && view === 'result' && createdTokenInfo && (
-            <TokenResult tokenInfo={createdTokenInfo} onReset={handleReset} />
-          )}
-        </div>
+        {!wallet.connected ? (
+          !isWalletModalVisible && (
+            <div className="text-center">
+              <h1 className="text-4xl font-bold mb-4">Create a Solana Token</h1>
+              <p className="text-brand-text-secondary mb-8">No coding required. Launch your token in minutes.</p>
+              <WalletMultiButton>Connect Wallet to Get Started</WalletMultiButton>
+            </div>
+          )
+        ) : (
+          <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-green border border-brand-border">
+            {view === 'form' && (
+              <>
+                <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>
+                <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
+                <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
+                  Note: Token Supply, Decimals, and Authority settings are fixed.
+                </p>
+                <TokenForm onSubmit={handleCreateToken} isLoading={isLoading} />
+              </>
+            )}
+            {view === 'result' && createdTokenInfo && (
+              <TokenResult tokenInfo={createdTokenInfo} onReset={handleReset} />
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
