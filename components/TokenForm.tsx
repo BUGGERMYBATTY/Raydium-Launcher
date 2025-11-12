@@ -29,11 +29,8 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading }) => {
     setIsUploading(true);
     setImage(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const ipfsUrl = await uploadImageToPinata(formData);
+      const ipfsUrl = await uploadImageToPinata(file);
       setImage(ipfsUrl);
     } catch (err) {
       console.error(err);
