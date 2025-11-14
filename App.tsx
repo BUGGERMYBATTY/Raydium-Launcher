@@ -172,6 +172,10 @@ const App: React.FC = () => {
     setError(null);
   }, []);
 
+  // Get network name from environment variable for display
+  const networkName = (import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta').toUpperCase();
+  const isMainnet = networkName === 'MAINNET-BETA';
+
   return (
     <div className="min-h-screen text-brand-text flex flex-col p-8 font-sans">
       <header className="w-full flex justify-between items-center mb-4">
@@ -181,8 +185,12 @@ const App: React.FC = () => {
           className="h-48"
         />
         <div className="flex items-center gap-4">
-          <div className="text-sm font-semibold text-purple-300 bg-purple-900/50 border border-purple-500 rounded-full px-4 py-1.5">
-            Devnet
+          <div className={`text-sm font-semibold rounded-full px-4 py-1.5 ${
+            isMainnet
+              ? 'text-green-300 bg-green-900/50 border border-green-500'
+              : 'text-purple-300 bg-purple-900/50 border border-purple-500'
+          }`}>
+            {isMainnet ? 'Mainnet' : networkName}
           </div>
           <WalletMultiButton />
         </div>
