@@ -1,6 +1,14 @@
 # VPS Deployment Guide for Cobra Launch
 
-This guide will help you deploy the Cobra Launch Solana token launcher on your VPS.
+This guide will help you deploy the Cobra Launch Solana token launcher on your VPS with a secure backend API.
+
+## Architecture Overview
+
+The application consists of two parts:
+1. **Frontend**: React/Vite application (static files)
+2. **Backend API**: Node.js/Express server (handles Pinata uploads securely)
+
+**Security Note**: The JWT for Pinata is ONLY stored on the backend server and is NEVER exposed to the frontend/browser.
 
 ## Prerequisites
 
@@ -8,7 +16,7 @@ This guide will help you deploy the Cobra Launch Solana token launcher on your V
 - Node.js 18+ installed
 - npm or yarn package manager
 - A domain name (optional, but recommended)
-- SSL certificate (for HTTPS, recommended)
+- SSL certificate (for HTTPS, **required** for wallet connections)
 
 ## 1. Initial Setup
 
@@ -35,21 +43,24 @@ Copy the example environment file and configure it:
 
 ```bash
 cp .env.example .env
-```
-
-Edit the `.env` file with your actual values:
-
-```bash
 nano .env
 ```
 
 **Required Configuration:**
 
 ```env
-# Pinata JWT for IPFS uploads (REQUIRED)
-VITE_PINATA_JWT=your_pinata_jwt_here
+# Backend API URL
+# In production, use your VPS domain: https://api.yourdomain.com
+# For local testing: http://localhost:3001
+VITE_BACKEND_API_URL=https://api.yourdomain.com
 
-# Pinata Gateway (REQUIRED)
+# Backend Port
+BACKEND_PORT=3001
+
+# Pinata JWT (BACKEND ONLY - Never exposed to frontend)
+VITE_PINATA_JWT=your_actual_pinata_jwt_here
+
+# Pinata Gateway
 VITE_PINATA_GATEWAY=https://your-gateway.mypinata.cloud
 
 # Solana Network (mainnet-beta for production)
@@ -62,10 +73,16 @@ VITE_SOLANA_NETWORK=mainnet-beta
 ### Install Dependencies
 
 ```bash
+# Install frontend dependencies
 npm install
+
+# Install backend dependencies
+cd backend
+npm install
+cd ..
 ```
 
-## 3. Build the Application
+## 3. Build the Frontend Application
 
 Build the production bundle:
 
@@ -73,20 +90,61 @@ Build the production bundle:
 npm run build
 ```
 
-This will create a `dist` folder with your production-ready application.
+This will create a `dist` folder with your production-ready frontend.
 
-## 4. Deployment Options
+## 4. Backend API Deployment with PM2
 
-### Option A: Using Nginx (Recommended)
+### Install PM2 (Process Manager)
 
-#### Install Nginx
+```bash
+sudo npm install -g pm2
+```
+
+### Create PM2 Ecosystem File
+
+Create `ecosystem.config.js` in the root directory:
+
+```bash
+cat > ecosystem.config.js << 'EOF'
+module.exports = {
+  apps: [
+    {
+      name: 'cobra-backend',
+      cwd: './backend',
+      script: 'server.js',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'production'
+      }
+    }
+  ]
+};
+EOF
+```
+
+### Start the Backend Server
+
+```bash
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+This will start your backend API on port 3001 (or the port specified in .env).
+
+## 5. Frontend Deployment with Nginx
+
+### Install Nginx
 
 ```bash
 sudo apt-get update
 sudo apt-get install nginx
 ```
 
-#### Configure Nginx
+### Configure Nginx
 
 Create a new site configuration:
 
@@ -94,12 +152,31 @@ Create a new site configuration:
 sudo nano /etc/nginx/sites-available/cobra-launch
 ```
 
-Add the following configuration:
+Add the following configuration (adjust domains as needed):
 
 ```nginx
+# Backend API Server
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name api.yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+# Frontend Application
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
 
     root /var/www/cobra-launch/dist;
     index index.html;
@@ -130,74 +207,106 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-#### Add SSL with Let's Encrypt (Recommended)
+## 6. SSL/HTTPS Setup with Let's Encrypt (REQUIRED)
+
+**Important**: Solana wallet adapters require HTTPS to function properly.
 
 ```bash
 sudo apt-get install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+
+# For main domain
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# For API subdomain
+sudo certbot --nginx -d api.yourdomain.com
 ```
 
-### Option B: Using a Development Server with PM2
+Certbot will automatically configure SSL and set up auto-renewal.
 
-If you prefer to run the dev server (not recommended for production):
+### Update .env with HTTPS Backend URL
 
-#### Install PM2
+After SSL is configured, update your `.env`:
 
 ```bash
-sudo npm install -g pm2
+nano .env
 ```
 
-#### Create PM2 Configuration
-
-```bash
-cat > ecosystem.config.js << 'EOF'
-module.exports = {
-  apps: [{
-    name: 'cobra-launch',
-    script: 'npm',
-    args: 'run dev',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    }
-  }]
-}
-EOF
+Change:
+```env
+VITE_BACKEND_API_URL=https://api.yourdomain.com
 ```
 
-#### Start the Application
+Rebuild the frontend:
 
 ```bash
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
+npm run build
+sudo systemctl restart nginx
 ```
 
-## 5. Firewall Configuration
+## 7. Firewall Configuration
 
-Allow HTTP and HTTPS traffic:
+Allow HTTP, HTTPS, and SSH traffic:
 
 ```bash
+sudo ufw allow 22
 sudo ufw allow 80
 sudo ufw allow 443
 sudo ufw enable
 ```
 
-## 6. Updating the Application
+## 8. Verify Deployment
+
+### Check Backend API
+
+```bash
+curl http://localhost:3001/api/health
+```
+
+Should return: `{"status":"ok","message":"Cobra Launch Backend API is running"}`
+
+### Check PM2 Status
+
+```bash
+pm2 status
+pm2 logs cobra-backend
+```
+
+### Check Frontend
+
+Visit your domain in a browser: `https://yourdomain.com`
+
+## 9. Updating the Application
 
 To update your application:
 
 ```bash
 cd /var/www/cobra-launch
+
+# Pull latest changes
 git pull
+
+# Update frontend
 npm install
 npm run build
-sudo systemctl restart nginx  # if using nginx
-# OR
-pm2 restart cobra-launch  # if using PM2
+
+# Update backend
+cd backend
+npm install
+cd ..
+
+# Restart services
+pm2 restart cobra-backend
+sudo systemctl restart nginx
 ```
 
-## 7. Monitoring and Logs
+## 10. Monitoring and Logs
+
+### Backend Logs (PM2)
+
+```bash
+pm2 logs cobra-backend
+pm2 monit
+```
 
 ### Nginx Logs
 
@@ -209,73 +318,81 @@ sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
 ```
 
-### PM2 Logs (if using PM2)
+## 11. Security Checklist
 
-```bash
-pm2 logs cobra-launch
-```
+- [x] JWT is stored in `.env` on the backend only
+- [x] `.env` file is in `.gitignore` (never committed)
+- [x] HTTPS/SSL is enabled for both frontend and backend
+- [x] Firewall is configured
+- [x] Using a custom RPC endpoint (recommended)
+- [x] Regular system updates: `sudo apt-get update && sudo apt-get upgrade`
 
-## 8. Security Considerations
-
-1. **Environment Variables**: Never commit your `.env` file to version control
-2. **SSL/HTTPS**: Always use HTTPS in production
-3. **RPC Endpoint**: Use a paid RPC service for better reliability and rate limits
-4. **Firewall**: Keep your firewall enabled and configured properly
-5. **Updates**: Regularly update your system and dependencies
-
-## 9. Performance Optimization
+## 12. Performance Optimization
 
 ### Use a Custom RPC Provider
 
-For production, use a custom RPC provider like:
-- QuickNode
-- Alchemy
-- Helius
-- Triton
+For production, use a paid RPC provider for better reliability:
+- **QuickNode**: https://www.quicknode.com/
+- **Alchemy**: https://www.alchemy.com/
+- **Helius**: https://www.helius.dev/
+- **Triton**: https://triton.one/
 
-Add it to your `.env`:
+Add to `.env`:
 
 ```env
 VITE_SOLANA_RPC_ENDPOINT=https://your-custom-rpc-endpoint.com
 ```
 
-### Enable Nginx Caching
+Then rebuild and restart:
 
-Add to your nginx configuration:
-
-```nginx
-proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m max_size=10g inactive=60m use_temp_path=off;
+```bash
+npm run build
+pm2 restart cobra-backend
+sudo systemctl restart nginx
 ```
 
-## 10. Troubleshooting
+## 13. Troubleshooting
 
-### Application won't build
+### Backend won't start
 
-- Check Node.js version: `node --version` (should be 18+)
-- Clear cache: `rm -rf node_modules package-lock.json && npm install`
+- Check logs: `pm2 logs cobra-backend`
+- Verify `.env` file exists and has correct values
+- Ensure port 3001 is not already in use: `sudo lsof -i :3001`
+
+### Frontend can't connect to backend
+
+- Verify HTTPS is configured for both frontend and backend
+- Check `VITE_BACKEND_API_URL` in `.env` matches your API subdomain
+- Check CORS settings in `backend/server.js`
+- View browser console for connection errors
 
 ### Wallet connections not working
 
 - Verify you're using HTTPS (required for wallet adapters)
 - Check browser console for errors
-- Ensure your domain is properly configured
+- Ensure your domain is properly configured with valid SSL
+- Test with different browsers/wallets
 
 ### Pinata uploads failing
 
-- Verify your `VITE_PINATA_JWT` is correct
-- Check Pinata dashboard for API limits
-- Ensure your JWT hasn't expired
+- Verify `VITE_PINATA_JWT` in `.env` is correct
+- Check backend logs: `pm2 logs cobra-backend`
+- Test backend API directly: `curl http://localhost:3001/api/health`
+- Check Pinata dashboard for API limits/usage
 
 ## Support
 
-For issues or questions, please check:
-- Solana Wallet Adapter documentation
-- Pinata documentation
-- Project repository issues
+For issues or questions:
+- Check PM2 logs: `pm2 logs cobra-backend`
+- Check Nginx logs: `sudo tail -f /var/log/nginx/error.log`
+- Review Solana Wallet Adapter documentation
+- Review Pinata documentation
 
 ---
 
 **Current Configuration:**
-- Network: Mainnet Beta
+- Network: Mainnet Beta (configurable)
 - Wallet Support: Phantom, Solflare
-- IPFS Provider: Pinata
+- IPFS Provider: Pinata (via secure backend)
+- Creation Fee: 0.1 SOL
+- Architecture: Frontend (static) + Backend API (Node.js/Express)

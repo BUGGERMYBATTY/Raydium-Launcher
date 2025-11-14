@@ -13,7 +13,7 @@ import { uploadMetadataToPinata } from './lib/pinata';
 
 const TOKEN_DECIMALS = 9;
 const TOKEN_SUPPLY = 1_000_000_000;
-const CREATION_FEE_SOL = 0.05;
+const CREATION_FEE_SOL = 0.1;
 
 const App: React.FC = () => {
   const [view, setView] = useState<'form' | 'result'>('form');
@@ -249,7 +249,7 @@ const App: React.FC = () => {
               </div>
               <div>
                 <label className="text-xs font-mono text-red-400 font-bold">FEE AMOUNT</label>
-                <p className="font-bold text-brand-accent">0.05 SOL</p>
+                <p className="font-bold text-brand-accent">0.1 SOL</p>
               </div>
             </div>
             

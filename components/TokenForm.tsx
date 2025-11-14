@@ -161,7 +161,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
       </div>
       
       <div className="text-center text-sm text-brand-text-secondary p-3 bg-brand-bg-transparent border border-brand-border rounded-lg">
-        Creation Fee: <span className="font-bold text-brand-accent">0.05 SOL</span>. This covers all transaction costs.
+        Creation Fee: <span className="font-bold text-brand-accent">0.1 SOL</span>. This covers all transaction costs.
       </div>
 
       <div className="relative group">

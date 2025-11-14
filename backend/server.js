@@ -1,0 +1,178 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import multer from 'multer';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load environment variables from parent directory's .env file
+dotenv.config({ path: join(__dirname, '..', '.env') });
+
+const app = express();
+const PORT = process.env.BACKEND_PORT || 3001;
+
+// Configure multer for file uploads (in-memory storage)
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Security: Ensure JWT is configured
+const PINATA_JWT = process.env.VITE_PINATA_JWT;
+const DEDICATED_GATEWAY = process.env.VITE_PINATA_GATEWAY || "https://yellow-peculiar-cephalopod-560.mypinata.cloud";
+
+if (!PINATA_JWT) {
+    console.error('FATAL ERROR: VITE_PINATA_JWT is not configured in environment variables');
+    process.exit(1);
+}
+
+// Helper functions
+function sanitizeForFilename(input) {
+    return input.replace(/[^a-zA-Z0-9.-]/g, '-').replace(/-+/g, '-');
+}
+
+function generateFileName(originalFileName, tokenName, tokenSymbol) {
+    const extension = originalFileName.split('.').pop() || 'png';
+    const sanitizedName = sanitizeForFilename(tokenName);
+    const sanitizedSymbol = sanitizeForFilename(tokenSymbol);
+    const randomNumber = Math.floor(Math.random() * 1_000_000_000);
+    return `${sanitizedName}-${sanitizedSymbol}-${randomNumber}.${extension}`;
+}
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Cobra Launch Backend API is running' });
+});
+
+// Image upload endpoint
+app.post('/api/upload-image', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const { tokenName, tokenSymbol } = req.body;
+
+        if (!tokenName || !tokenSymbol) {
+            return res.status(400).json({ error: 'tokenName and tokenSymbol are required' });
+        }
+
+        const uniqueFileName = generateFileName(req.file.originalname, tokenName, tokenSymbol);
+
+        // Create FormData for Pinata API
+        const FormData = (await import('form-data')).default;
+        const formData = new FormData();
+
+        // Add file buffer to form data
+        formData.append('file', req.file.buffer, {
+            filename: uniqueFileName,
+            contentType: req.file.mimetype
+        });
+
+        const metadata = JSON.stringify({
+            name: uniqueFileName,
+            keyvalues: { tokenName, tokenSymbol, uploadType: 'token-image' }
+        });
+        formData.append('pinataMetadata', metadata);
+
+        const options = JSON.stringify({ cidVersion: 0 });
+        formData.append('pinataOptions', options);
+
+        // Upload to Pinata
+        const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${PINATA_JWT}`,
+                ...formData.getHeaders()
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Pinata API Error: ${errorData.error?.reason || response.statusText}`);
+        }
+
+        const result = await response.json();
+        const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${result.IpfsHash}`;
+
+        res.json({ success: true, url: ipfsUrl });
+    } catch (error) {
+        console.error('Image upload error:', error);
+        res.status(500).json({ error: error.message || 'Failed to upload image' });
+    }
+});
+
+// Metadata upload endpoint
+app.post('/api/upload-metadata', async (req, res) => {
+    try {
+        const { name, symbol, description, image } = req.body;
+
+        if (!name || !symbol || !description || !image) {
+            return res.status(400).json({ error: 'name, symbol, description, and image are required' });
+        }
+
+        const metadataJson = {
+            name,
+            symbol,
+            description,
+            image,
+        };
+
+        const uniqueFileName = `${sanitizeForFilename(symbol)}-metadata.json`;
+
+        // Create FormData for Pinata API
+        const FormData = (await import('form-data')).default;
+        const formData = new FormData();
+
+        // Convert JSON to buffer and add to form data
+        const jsonBuffer = Buffer.from(JSON.stringify(metadataJson));
+        formData.append('file', jsonBuffer, {
+            filename: uniqueFileName,
+            contentType: 'application/json'
+        });
+
+        const pinataMetadata = JSON.stringify({
+            name: uniqueFileName,
+            keyvalues: { tokenName: name, tokenSymbol: symbol, uploadType: 'token-metadata' }
+        });
+        formData.append('pinataMetadata', pinataMetadata);
+
+        const options = JSON.stringify({ cidVersion: 0 });
+        formData.append('pinataOptions', options);
+
+        // Upload to Pinata
+        const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+            method: "POST",
+            headers: {
+                'Authorization': `Bearer ${PINATA_JWT}`,
+                ...formData.getHeaders()
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Pinata API Error: ${errorData.error?.reason || response.statusText}`);
+        }
+
+        const result = await response.json();
+        const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${result.IpfsHash}`;
+
+        res.json({ success: true, url: ipfsUrl });
+    } catch (error) {
+        console.error('Metadata upload error:', error);
+        res.status(500).json({ error: error.message || 'Failed to upload metadata' });
+    }
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Cobra Launch Backend API running on port ${PORT}`);
+    console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🔒 Pinata JWT: ${PINATA_JWT ? 'Configured ✓' : 'Missing ✗'}`);
+});
