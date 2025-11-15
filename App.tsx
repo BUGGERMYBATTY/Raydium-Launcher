@@ -187,46 +187,23 @@ const App: React.FC = () => {
       console.log('Requesting wallet signature...');
       const signedTransaction = await wallet.signTransaction!(transaction);
 
-      // Fetch a FRESH blockhash right before sending (in case user took time to approve)
-      console.log('Fetching fresh blockhash before sending...');
-      const freshBlockhashResponse = await fetch(connection.rpcEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'getLatestBlockhash',
-          params: [{ commitment: 'confirmed' }]
-        })
-      });
-
-      const freshBlockhashData = await freshBlockhashResponse.json();
-      if (freshBlockhashData.error) {
-        throw new Error(`RPC Error: ${freshBlockhashData.error.message}`);
-      }
-
-      const freshBlockhash = freshBlockhashData.result.value;
-      console.log('Fresh blockhash:', freshBlockhash.blockhash.slice(0, 8) + '...');
-
-      // Update transaction with fresh blockhash
-      signedTransaction.recentBlockhash = freshBlockhash.blockhash;
-
-      // Serialize and send raw transaction
+      // Serialize and send raw transaction immediately
+      // IMPORTANT: Cannot change blockhash after signing - it would invalidate signatures!
       console.log('Sending raw transaction...');
       const rawTransaction = signedTransaction.serialize();
       const signature = await connection.sendRawTransaction(rawTransaction, {
         skipPreflight: true,
-        maxRetries: 3
+        maxRetries: 5
       });
 
       console.log('Transaction sent, signature:', signature);
       console.log('Confirming transaction...');
 
-      // Confirm the transaction using the fresh blockhash
+      // Confirm the transaction using the original blockhash
       await connection.confirmTransaction({
         signature,
-        blockhash: freshBlockhash.blockhash,
-        lastValidBlockHeight: freshBlockhash.lastValidBlockHeight
+        blockhash,
+        lastValidBlockHeight
       }, 'confirmed');
 
       console.log('Transaction confirmed!');
