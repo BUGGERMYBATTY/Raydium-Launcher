@@ -213,7 +213,12 @@ const App: React.FC = () => {
                 <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
                   Note: Token Supply, Decimals, and Authority settings are fixed.
                 </p>
-                <TokenForm onSubmit={handleFormSubmit} isLoading={isLoading} isConfirmModalOpen={isConfirmModalOpen} />
+                <TokenForm
+                  onSubmit={handleFormSubmit}
+                  isLoading={isLoading}
+                  isConfirmModalOpen={isConfirmModalOpen}
+                  walletAddress={wallet.publicKey?.toBase58()}
+                />
                  {error && (
                   <div className="mt-4 p-4 bg-red-900/50 border border-red-500 text-red-300 rounded-lg text-sm">
                     <strong>Error:</strong> {error}

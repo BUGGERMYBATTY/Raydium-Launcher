@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import type { TokenData } from '../types';
 import { UploadIcon } from './icons/UploadIcon';
 import { CheckIcon } from './icons/CheckIcon';
@@ -10,17 +10,25 @@ interface TokenFormProps {
   onSubmit: (data: Omit<TokenData, 'image'> & { image: string }) => void;
   isLoading: boolean;
   isConfirmModalOpen: boolean;
+  walletAddress?: string;
 }
 
-const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmModalOpen }) => {
+const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmModalOpen, walletAddress }) => {
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
-  const [treasuryAddress, setTreasuryAddress] = useState('');
+  const [treasuryAddress, setTreasuryAddress] = useState(walletAddress || '');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
-  
+
+  // Update treasury address when wallet address changes
+  useEffect(() => {
+    if (walletAddress && !treasuryAddress) {
+      setTreasuryAddress(walletAddress);
+    }
+  }, [walletAddress, treasuryAddress]);
+
   const isTreasuryAddressValid = useMemo(() => {
     if (!treasuryAddress) return false;
     try {
@@ -129,8 +137,9 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
 
       <InputField id="token-description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
 
-      <InputField id="treasury-address" label="Treasury Wallet Address" value={treasuryAddress} onChange={(e) => setTreasuryAddress(e.target.value)} placeholder="Wallet address to receive the creation fee" />
+      <InputField id="treasury-address" label="Treasury Wallet Address (Fee Recipient)" value={treasuryAddress} onChange={(e) => setTreasuryAddress(e.target.value)} placeholder="Auto-filled with your connected wallet" />
       {!isTreasuryAddressValid && treasuryAddress.length > 0 && <p className="text-sm text-red-500 -mt-4">Please enter a valid Solana wallet address.</p>}
+      {walletAddress && treasuryAddress === walletAddress && <p className="text-sm text-brand-text-secondary/80 -mt-4">Using your connected wallet address</p>}
 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
