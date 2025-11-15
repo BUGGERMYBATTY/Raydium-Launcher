@@ -42,15 +42,46 @@ if (!PINATA_JWT) {
 
 // Helper functions
 function sanitizeForFilename(input) {
-    return input.replace(/[^a-zA-Z0-9.-]/g, '-').replace(/-+/g, '-');
+    return input.replace(/[^a-zA-Z0-9.-]/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
 }
 
 function generateFileName(originalFileName, tokenName, tokenSymbol) {
     const extension = originalFileName.split('.').pop() || 'png';
-    const sanitizedName = sanitizeForFilename(tokenName);
-    const sanitizedSymbol = sanitizeForFilename(tokenSymbol);
-    const randomNumber = Math.floor(Math.random() * 1_000_000_000);
-    return `${sanitizedName}-${sanitizedSymbol}-${randomNumber}.${extension}`;
+
+    // Generate 6-digit random number (100000-999999)
+    const randomNumber = Math.floor(100000 + Math.random() * 900000);
+
+    // Calculate available space: 50 (max) - extension.length - 1 (dot) - 6 (random) - 2 (hyphens)
+    const fixedLength = extension.length + 1 + 6 + 2; // e.g., 4 + 1 + 6 + 2 = 13
+    const availableLength = 50 - fixedLength; // e.g., 50 - 13 = 37
+
+    // Sanitize inputs
+    let sanitizedName = sanitizeForFilename(tokenName);
+    let sanitizedSymbol = sanitizeForFilename(tokenSymbol);
+
+    // Allocate space: 60% for name, 40% for symbol
+    const maxNameLength = Math.floor(availableLength * 0.6);
+    const maxSymbolLength = availableLength - maxNameLength;
+
+    // Truncate if necessary
+    if (sanitizedName.length > maxNameLength) {
+        sanitizedName = sanitizedName.substring(0, maxNameLength);
+    }
+    if (sanitizedSymbol.length > maxSymbolLength) {
+        sanitizedSymbol = sanitizedSymbol.substring(0, maxSymbolLength);
+    }
+
+    // Build filename
+    const filename = `${sanitizedName}-${sanitizedSymbol}-${randomNumber}.${extension}`;
+
+    // Final safety check - ensure it's under 50 chars
+    if (filename.length > 50) {
+        console.warn(`Filename too long (${filename.length} chars), truncating: ${filename}`);
+        // Emergency truncation - just use symbol and random
+        return `${sanitizedSymbol.substring(0, 10)}-${randomNumber}.${extension}`;
+    }
+
+    return filename;
 }
 
 // Health check endpoint
