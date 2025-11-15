@@ -17,7 +17,9 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
     setTimeout(() => setCopied(false), 2000);
   }, [tokenInfo.address]);
   
-  const explorerUrl = `https://solscan.io/tx/${tokenInfo.transactionSignature}?cluster=devnet`;
+  const network = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta';
+  const clusterParam = network === 'mainnet-beta' ? '' : `?cluster=${network}`;
+  const explorerUrl = `https://solscan.io/tx/${tokenInfo.transactionSignature}${clusterParam}`;
 
   return (
     <div className="text-center animate-fade-in">
@@ -59,10 +61,6 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
             <div>
               <label className="text-xs font-mono text-brand-text-secondary">OWNER / AUTHORITY</label>
               <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md">{tokenInfo.ownerAddress}</p>
-            </div>
-             <div>
-              <label className="text-xs font-mono text-brand-text-secondary">TREASURY ADDRESS (FEE RECIPIENT)</label>
-              <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md">{tokenInfo.treasuryAddress}</p>
             </div>
           </div>
         </div>

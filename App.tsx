@@ -249,10 +249,6 @@ const App: React.FC = () => {
                 <p className="text-brand-text">{tokenDataToConfirm.symbol}</p>
               </div>
               <div>
-                <label className="text-xs font-mono text-red-400 font-bold">FEE RECIPIENT (TREASURY)</label>
-                <p className="text-brand-text font-mono break-all bg-brand-surface p-2 rounded mt-1">{tokenDataToConfirm.treasuryAddress}</p>
-              </div>
-              <div>
                 <label className="text-xs font-mono text-red-400 font-bold">FEE AMOUNT</label>
                 <p className="font-bold text-brand-accent">0.1 SOL</p>
               </div>
