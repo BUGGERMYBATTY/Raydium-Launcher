@@ -105,6 +105,8 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
 
         const uniqueFileName = generateFileName(req.file.originalname, tokenName, tokenSymbol);
 
+        console.log(`Uploading image: ${uniqueFileName} (${req.file.size} bytes, ${req.file.mimetype})`);
+
         // Create FormData for Pinata API
         const formData = new FormData();
 
@@ -134,13 +136,21 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Pinata API Error: ${errorData.error?.reason || response.statusText}`);
+            const errorText = await response.text();
+            console.error('Pinata Image Upload Error:', response.status, errorText);
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: { reason: errorText } };
+            }
+            throw new Error(`Pinata API Error (${response.status}): ${errorData.error?.reason || errorData.error || response.statusText}`);
         }
 
         const result = await response.json();
         const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${result.IpfsHash}`;
 
+        console.log(`Image uploaded successfully: ${ipfsUrl}`);
         res.json({ success: true, url: ipfsUrl });
     } catch (error) {
         console.error('Image upload error:', error);
@@ -196,13 +206,21 @@ app.post('/api/upload-metadata', async (req, res) => {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Pinata API Error: ${errorData.error?.reason || response.statusText}`);
+            const errorText = await response.text();
+            console.error('Pinata Metadata Upload Error:', response.status, errorText);
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: { reason: errorText } };
+            }
+            throw new Error(`Pinata API Error (${response.status}): ${errorData.error?.reason || errorData.error || response.statusText}`);
         }
 
         const result = await response.json();
         const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${result.IpfsHash}`;
 
+        console.log(`Metadata uploaded successfully: ${ipfsUrl}`);
         res.json({ success: true, url: ipfsUrl });
     } catch (error) {
         console.error('Metadata upload error:', error);
