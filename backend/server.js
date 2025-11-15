@@ -111,26 +111,25 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
         // Create FormData for Pinata API
         const formData = new FormData();
 
-        // Add file buffer to form data - Pinata requires specific format
+        // Add file buffer - Pinata requires the buffer directly with options object
         formData.append('file', req.file.buffer, {
             filename: uniqueFileName,
-            contentType: req.file.mimetype,
-            knownLength: req.file.size
+            contentType: req.file.mimetype
         });
 
-        // Add metadata as JSON string
-        const pinataMetadata = {
-            name: uniqueFileName,
-            keyvalues: {
-                tokenName,
-                tokenSymbol,
-                uploadType: 'token-image'
-            }
-        };
-        formData.append('pinataMetadata', JSON.stringify(pinataMetadata));
+        // Add pinataMetadata - must be stringified JSON
+        const pinataMetadata = JSON.stringify({
+            name: uniqueFileName
+        });
+        formData.append('pinataMetadata', pinataMetadata);
 
-        // Add options as JSON string
-        formData.append('pinataOptions', JSON.stringify({ cidVersion: 0 }));
+        // Add pinataOptions - must be stringified JSON
+        const pinataOptions = JSON.stringify({
+            cidVersion: 0
+        });
+        formData.append('pinataOptions', pinataOptions);
+
+        console.log('Sending request to Pinata with file:', uniqueFileName);
 
         // Upload to Pinata using axios
         const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
@@ -148,7 +147,12 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
         res.json({ success: true, url: ipfsUrl });
     } catch (error) {
         console.error('Image upload error:', error);
-        res.status(500).json({ error: error.message || 'Failed to upload image' });
+        if (error.response) {
+            console.error('Pinata API Response Error:', error.response.status, error.response.data);
+            res.status(error.response.status).json({ error: error.response.data?.error || 'Pinata API error' });
+        } else {
+            res.status(500).json({ error: error.message || 'Failed to upload image' });
+        }
     }
 });
 
@@ -179,23 +183,22 @@ app.post('/api/upload-metadata', async (req, res) => {
         const jsonBuffer = Buffer.from(JSON.stringify(metadataJson));
         formData.append('file', jsonBuffer, {
             filename: uniqueFileName,
-            contentType: 'application/json',
-            knownLength: jsonBuffer.length
+            contentType: 'application/json'
         });
 
-        // Add metadata as JSON string
-        const pinataMetadata = {
-            name: uniqueFileName,
-            keyvalues: {
-                tokenName: name,
-                tokenSymbol: symbol,
-                uploadType: 'token-metadata'
-            }
-        };
-        formData.append('pinataMetadata', JSON.stringify(pinataMetadata));
+        // Add pinataMetadata - must be stringified JSON
+        const pinataMetadata = JSON.stringify({
+            name: uniqueFileName
+        });
+        formData.append('pinataMetadata', pinataMetadata);
 
-        // Add options as JSON string
-        formData.append('pinataOptions', JSON.stringify({ cidVersion: 0 }));
+        // Add pinataOptions - must be stringified JSON
+        const pinataOptions = JSON.stringify({
+            cidVersion: 0
+        });
+        formData.append('pinataOptions', pinataOptions);
+
+        console.log('Sending metadata request to Pinata');
 
         // Upload to Pinata using axios
         const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
@@ -213,7 +216,12 @@ app.post('/api/upload-metadata', async (req, res) => {
         res.json({ success: true, url: ipfsUrl });
     } catch (error) {
         console.error('Metadata upload error:', error);
-        res.status(500).json({ error: error.message || 'Failed to upload metadata' });
+        if (error.response) {
+            console.error('Pinata API Response Error:', error.response.status, error.response.data);
+            res.status(error.response.status).json({ error: error.response.data?.error || 'Pinata API error' });
+        } else {
+            res.status(500).json({ error: error.message || 'Failed to upload metadata' });
+        }
     }
 });
 
