@@ -239,10 +239,12 @@ const App: React.FC = () => {
       <main className="flex-grow flex items-center justify-center">
         {!wallet.connected ? (
           !isWalletModalVisible && (
-            <div className="text-center">
-              <h1 className="text-4xl font-bold mb-4">Create a Solana Token</h1>
-              <p className="text-brand-text-secondary mb-8">No coding required. Launch your token in minutes.</p>
-              <WalletMultiButton>Connect Wallet to Get Started</WalletMultiButton>
+            <div className="text-center space-y-6">
+              <h1 className="text-4xl font-bold">Create a Solana Token</h1>
+              <p className="text-brand-text-secondary">No coding required. Launch your token in minutes.</p>
+              <div className="pt-4">
+                <WalletMultiButton>Connect Wallet to Get Started</WalletMultiButton>
+              </div>
             </div>
           )
         ) : (
