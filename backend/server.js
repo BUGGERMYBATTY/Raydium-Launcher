@@ -110,22 +110,28 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
         // Create FormData for Pinata API
         const formData = new FormData();
 
-        // Add file buffer to form data
+        // Add file buffer to form data - Pinata requires specific format
         formData.append('file', req.file.buffer, {
             filename: uniqueFileName,
-            contentType: req.file.mimetype
+            contentType: req.file.mimetype,
+            knownLength: req.file.size
         });
 
-        const metadata = JSON.stringify({
+        // Add metadata as JSON string
+        const pinataMetadata = {
             name: uniqueFileName,
-            keyvalues: { tokenName, tokenSymbol, uploadType: 'token-image' }
-        });
-        formData.append('pinataMetadata', metadata);
+            keyvalues: {
+                tokenName,
+                tokenSymbol,
+                uploadType: 'token-image'
+            }
+        };
+        formData.append('pinataMetadata', JSON.stringify(pinataMetadata));
 
-        const options = JSON.stringify({ cidVersion: 0 });
-        formData.append('pinataOptions', options);
+        // Add options as JSON string
+        formData.append('pinataOptions', JSON.stringify({ cidVersion: 0 }));
 
-        // Upload to Pinata
+        // Upload to Pinata with proper headers
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: "POST",
             headers: {
@@ -176,6 +182,8 @@ app.post('/api/upload-metadata', async (req, res) => {
 
         const uniqueFileName = `${sanitizeForFilename(symbol)}-metadata.json`;
 
+        console.log(`Uploading metadata: ${uniqueFileName}`);
+
         // Create FormData for Pinata API
         const formData = new FormData();
 
@@ -183,19 +191,25 @@ app.post('/api/upload-metadata', async (req, res) => {
         const jsonBuffer = Buffer.from(JSON.stringify(metadataJson));
         formData.append('file', jsonBuffer, {
             filename: uniqueFileName,
-            contentType: 'application/json'
+            contentType: 'application/json',
+            knownLength: jsonBuffer.length
         });
 
-        const pinataMetadata = JSON.stringify({
+        // Add metadata as JSON string
+        const pinataMetadata = {
             name: uniqueFileName,
-            keyvalues: { tokenName: name, tokenSymbol: symbol, uploadType: 'token-metadata' }
-        });
-        formData.append('pinataMetadata', pinataMetadata);
+            keyvalues: {
+                tokenName: name,
+                tokenSymbol: symbol,
+                uploadType: 'token-metadata'
+            }
+        };
+        formData.append('pinataMetadata', JSON.stringify(pinataMetadata));
 
-        const options = JSON.stringify({ cidVersion: 0 });
-        formData.append('pinataOptions', options);
+        // Add options as JSON string
+        formData.append('pinataOptions', JSON.stringify({ cidVersion: 0 }));
 
-        // Upload to Pinata
+        // Upload to Pinata with proper headers
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: "POST",
             headers: {
