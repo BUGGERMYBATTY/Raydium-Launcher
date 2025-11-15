@@ -7,7 +7,7 @@
     <title>Cobra Launch</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Saira+Stencil+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200;300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@solana/wallet-adapter-react-ui@latest/styles.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,8 +15,9 @@
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              heading: ['"Saira Stencil One"', 'sans-serif'],
+              sans: ['Roboto', 'sans-serif'],
+              header: ['Oxanium', 'sans-serif'],
+              body: ['Roboto', 'sans-serif'],
             },
             colors: {
               'brand-bg': '#111111',
@@ -38,6 +39,35 @@
       }
     </script>
     <style>
+      /* Font System: Oxanium for headers, Roboto for body */
+      h1, h2, h3, h4, h5, h6,
+      button,
+      .btn,
+      nav,
+      .wallet-adapter-button,
+      .wallet-adapter-modal-title {
+        font-family: 'Oxanium', sans-serif !important;
+      }
+
+      body,
+      p,
+      label,
+      input,
+      textarea,
+      select,
+      .body-text {
+        font-family: 'Roboto', sans-serif !important;
+      }
+
+      /* Header weights */
+      h1 { font-weight: 700; }
+      h2 { font-weight: 600; }
+      h3, h4, h5, h6 { font-weight: 500; }
+
+      /* Body weights */
+      p { font-weight: 400; }
+      label { font-weight: 500; }
+
       body {
         background-image: url('https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeibe5ra6lovl3gthml2qpiemkjd676fnw3j3aviicr5g44a676tqsa');
         background-size: cover;
