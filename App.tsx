@@ -7,7 +7,7 @@ import type { TokenData, CreatedTokenInfo } from './types';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Keypair, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID, createInitializeMintInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType, getMintLen } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, createInitializeMintInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from '@solana/spl-token';
 import { createCreateMetadataAccountV3Instruction, PROGRAM_ID as METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { uploadMetadataToPinata } from './lib/pinata';
 
@@ -36,6 +36,18 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log('Token Creation Data:', data);
+      console.log('Data types:', {
+        name: typeof data.name,
+        symbol: typeof data.symbol,
+        treasuryAddress: typeof data.treasuryAddress
+      });
+
+      // Validate treasury address is set
+      if (!data.treasuryAddress || data.treasuryAddress.trim() === '') {
+        throw new Error("Treasury address is not configured. Please check your environment settings.");
+      }
+
       // SAFEGUARD: Explicitly block transactions to the known incorrect address.
       const FORBIDDEN_ADDRESS = "CobrA111111111111111111111111111111111111111";
       if (data.treasuryAddress.trim() === FORBIDDEN_ADDRESS) {
@@ -50,7 +62,9 @@ const App: React.FC = () => {
       
       // 2. Create new mint keypair
       const mintKeypair = Keypair.generate();
-      const mintLen = getMintLen([]);
+      // EMERGENCY FIX: Hardcode mint size to avoid type errors with getMintLen
+      // Standard token mint without extensions is always 82 bytes
+      const mintLen = 82;
       const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
       // 3. Get Associated Token Account address
