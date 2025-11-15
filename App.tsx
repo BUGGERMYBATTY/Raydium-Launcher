@@ -7,7 +7,7 @@ import type { TokenData, CreatedTokenInfo } from './types';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Keypair, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { MINT_SIZE, TOKEN_PROGRAM_ID, createInitializeMintInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, createInitializeMintInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType, getMintLen } from '@solana/spl-token';
 import { createCreateMetadataAccountV3Instruction, PROGRAM_ID as METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { uploadMetadataToPinata } from './lib/pinata';
 
@@ -50,7 +50,8 @@ const App: React.FC = () => {
       
       // 2. Create new mint keypair
       const mintKeypair = Keypair.generate();
-      const lamports = await connection.getMinimumBalanceForRentExemption(MINT_SIZE);
+      const mintLen = getMintLen([]);
+      const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
 
       // 3. Get Associated Token Account address
       const associatedTokenAddress = await getAssociatedTokenAddress(
@@ -77,7 +78,7 @@ const App: React.FC = () => {
         SystemProgram.createAccount({
           fromPubkey: wallet.publicKey,
           newAccountPubkey: mintKeypair.publicKey,
-          space: MINT_SIZE,
+          space: mintLen,
           lamports,
           programId: TOKEN_PROGRAM_ID,
         }),
