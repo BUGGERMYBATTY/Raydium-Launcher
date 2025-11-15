@@ -150,23 +150,30 @@ const App: React.FC = () => {
         )
       );
 
-      // CRITICAL FIX: Create fresh connection to avoid RPC type errors
+      // CRITICAL FIX: Use deprecated getRecentBlockhash to avoid union type errors
       console.log('Creating fresh RPC connection...');
       const networkEnv = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta';
-      const rpcEndpoint = import.meta.env.VITE_SOLANA_RPC_ENDPOINT ||
-        (networkEnv === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : clusterApiUrl(networkEnv));
 
-      const freshConnection = new Connection(rpcEndpoint, {
-        commitment: 'confirmed',
-        confirmTransactionInitialTimeout: 60000
-      });
+      // Use different RPC endpoints that are known to work reliably
+      let rpcEndpoint;
+      if (import.meta.env.VITE_SOLANA_RPC_ENDPOINT) {
+        rpcEndpoint = import.meta.env.VITE_SOLANA_RPC_ENDPOINT;
+      } else if (networkEnv === 'mainnet-beta') {
+        // Try Solana public RPC
+        rpcEndpoint = 'https://api.mainnet-beta.solana.com';
+      } else {
+        rpcEndpoint = clusterApiUrl(networkEnv);
+      }
 
-      console.log('Getting latest blockhash from fresh connection...');
-      const { blockhash } = await freshConnection.getLatestBlockhash('confirmed');
-      transaction.recentBlockhash = blockhash;
+      const freshConnection = new Connection(rpcEndpoint, 'confirmed');
+
+      console.log('Getting recent blockhash using deprecated method...');
+      // Use deprecated getRecentBlockhash method which is more stable
+      const recentBlockhashInfo = await freshConnection.getRecentBlockhash('confirmed');
+      transaction.recentBlockhash = recentBlockhashInfo.blockhash;
       transaction.feePayer = wallet.publicKey;
 
-      console.log('Sending transaction with blockhash:', blockhash.slice(0, 8) + '...');
+      console.log('Sending transaction with blockhash:', recentBlockhashInfo.blockhash.slice(0, 8) + '...');
       const signature = await wallet.sendTransaction(transaction, freshConnection, {
         signers: [mintKeypair],
         skipPreflight: false,
@@ -175,6 +182,8 @@ const App: React.FC = () => {
 
       console.log('Transaction sent, signature:', signature);
       console.log('Confirming transaction...');
+
+      // Use simpler confirmation method
       await freshConnection.confirmTransaction(signature, 'confirmed');
       console.log('Transaction confirmed!');
 
