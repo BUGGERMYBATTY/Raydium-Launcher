@@ -150,17 +150,47 @@ const App: React.FC = () => {
         )
       );
 
-      // Let the wallet adapter handle blockhash and signing automatically
-      console.log('Sending transaction...');
+      // MANUAL TRANSACTION SIGNING AND SENDING
+      // This bypasses wallet.sendTransaction() which has blockhash issues
+      console.log('Manually building and signing transaction...');
       console.log('Using RPC:', connection.rpcEndpoint);
 
-      // wallet.sendTransaction automatically:
-      // 1. Gets the latest blockhash
-      // 2. Sets the fee payer
-      // 3. Signs with the wallet
-      // 4. Sends the transaction
-      const signature = await wallet.sendTransaction(transaction, connection, {
-        signers: [mintKeypair],
+      // Fetch blockhash using RPC call directly to avoid SDK type issues
+      console.log('Fetching blockhash via RPC...');
+      const blockhashResponse = await fetch(connection.rpcEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getLatestBlockhash',
+          params: [{ commitment: 'finalized' }]
+        })
+      });
+
+      const blockhashData = await blockhashResponse.json();
+      if (blockhashData.error) {
+        throw new Error(`RPC Error: ${blockhashData.error.message}`);
+      }
+
+      const { blockhash, lastValidBlockHeight } = blockhashData.result.value;
+      console.log('Got blockhash:', blockhash.slice(0, 8) + '...');
+
+      // Set transaction properties
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = wallet.publicKey;
+
+      // Partially sign with mint keypair
+      transaction.partialSign(mintKeypair);
+
+      // Sign with wallet
+      console.log('Requesting wallet signature...');
+      const signedTransaction = await wallet.signTransaction!(transaction);
+
+      // Serialize and send raw transaction
+      console.log('Sending raw transaction...');
+      const rawTransaction = signedTransaction.serialize();
+      const signature = await connection.sendRawTransaction(rawTransaction, {
         skipPreflight: false,
         preflightCommitment: 'confirmed'
       });
@@ -169,11 +199,10 @@ const App: React.FC = () => {
       console.log('Confirming transaction...');
 
       // Confirm the transaction
-      const latestBlockhash = await connection.getLatestBlockhash('confirmed');
       await connection.confirmTransaction({
         signature,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+        blockhash,
+        lastValidBlockHeight
       }, 'confirmed');
 
       console.log('Transaction confirmed!');
