@@ -6,7 +6,7 @@ import TokenResult from './components/TokenResult';
 import type { TokenData, CreatedTokenInfo } from './types';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { Keypair, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { Keypair, SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL, Connection, clusterApiUrl } from '@solana/web3.js';
 import { TOKEN_PROGRAM_ID, createInitializeMintInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createMintToInstruction, createSetAuthorityInstruction, AuthorityType } from '@solana/spl-token';
 import { createCreateMetadataAccountV3Instruction, PROGRAM_ID as METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { uploadMetadataToPinata } from './lib/pinata';
@@ -149,12 +149,34 @@ const App: React.FC = () => {
             null
         )
       );
-      
-      const signature = await wallet.sendTransaction(transaction, connection, {
-        signers: [mintKeypair]
+
+      // CRITICAL FIX: Create fresh connection to avoid RPC type errors
+      console.log('Creating fresh RPC connection...');
+      const networkEnv = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta';
+      const rpcEndpoint = import.meta.env.VITE_SOLANA_RPC_ENDPOINT ||
+        (networkEnv === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : clusterApiUrl(networkEnv));
+
+      const freshConnection = new Connection(rpcEndpoint, {
+        commitment: 'confirmed',
+        confirmTransactionInitialTimeout: 60000
       });
 
-      await connection.confirmTransaction(signature, 'confirmed');
+      console.log('Getting latest blockhash from fresh connection...');
+      const { blockhash } = await freshConnection.getLatestBlockhash('confirmed');
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = wallet.publicKey;
+
+      console.log('Sending transaction with blockhash:', blockhash.slice(0, 8) + '...');
+      const signature = await wallet.sendTransaction(transaction, freshConnection, {
+        signers: [mintKeypair],
+        skipPreflight: false,
+        preflightCommitment: 'confirmed'
+      });
+
+      console.log('Transaction sent, signature:', signature);
+      console.log('Confirming transaction...');
+      await freshConnection.confirmTransaction(signature, 'confirmed');
+      console.log('Transaction confirmed!');
 
       setCreatedTokenInfo({
         ...data,
