@@ -25,14 +25,22 @@
               'brand-bg-transparent': 'rgba(17, 17, 17, 0.65)',
               'brand-bg-transparent-hover': 'rgba(17, 17, 17, 0.75)',
               'brand-surface-transparent': 'rgba(30, 30, 30, 0.65)',
-              'brand-accent': '#39FF14',
-              'brand-accent-hover': '#7CFF6B',
+              'brand-accent': '#D946EF',
+              'brand-accent-hover': '#E040FB',
               'brand-text': '#F5F5F5',
               'brand-text-secondary': '#F5F5F5',
               'brand-border': '#333333',
+              'neon-purple': {
+                DEFAULT: '#D946EF',
+                light: '#F0ABFC',
+                dark: '#BF40BF',
+                bright: '#E040FB',
+                hot: '#DA70D6'
+              }
             },
             boxShadow: {
-              'glow-green': '0 0 20px 0 rgba(57, 255, 20, 0.5)',
+              'glow-purple': '0 0 10px rgba(217, 70, 239, 0.8), 0 0 20px rgba(217, 70, 239, 0.6), 0 0 30px rgba(217, 70, 239, 0.4), 0 0 40px rgba(217, 70, 239, 0.2)',
+              'glow-purple-intense': '0 0 15px rgba(224, 64, 251, 1), 0 0 30px rgba(224, 64, 251, 0.8), 0 0 45px rgba(224, 64, 251, 0.6), 0 0 60px rgba(224, 64, 251, 0.4)',
             }
           },
         },
@@ -75,22 +83,37 @@
         background-repeat: no-repeat;
         background-attachment: fixed;
       }
+      /* NEON PURPLE CYBERPUNK BUTTONS */
       .wallet-adapter-button {
-        background-color: #39FF14 !important;
+        background: linear-gradient(135deg, #D946EF 0%, #BF40BF 100%) !important;
         color: white !important;
         font-weight: 600 !important;
         border-radius: 0.5rem !important;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+        border: 2px solid #E040FB !important;
+        box-shadow:
+          0 0 10px rgba(217, 70, 239, 0.8),
+          0 0 20px rgba(217, 70, 239, 0.6),
+          0 0 30px rgba(217, 70, 239, 0.4) !important;
+        transition: all 0.3s ease !important;
       }
       .wallet-adapter-button:hover {
-        background-color: #7CFF6B !important;
+        background: linear-gradient(135deg, #E040FB 0%, #D946EF 100%) !important;
+        box-shadow:
+          0 0 15px rgba(224, 64, 251, 1),
+          0 0 30px rgba(224, 64, 251, 0.8),
+          0 0 45px rgba(224, 64, 251, 0.6),
+          0 0 60px rgba(224, 64, 251, 0.4) !important;
+        transform: translateY(-2px) !important;
       }
       .wallet-adapter-button-trigger {
         background-color: rgba(30, 30, 30, 0.65) !important;
         border: 1px solid #333333 !important;
       }
        .wallet-adapter-button-trigger:hover {
-        border-color: #39FF14 !important;
+        border-color: #D946EF !important;
+        box-shadow:
+          0 0 10px rgba(217, 70, 239, 0.5),
+          0 0 20px rgba(217, 70, 239, 0.3) !important;
        }
       .wallet-adapter-modal-wrapper {
         background-color: rgba(0, 0, 0, 0.7) !important;
@@ -98,14 +121,18 @@
       .wallet-adapter-modal-container {
         background: #1E1E1E !important;
         border-radius: 1rem !important;
-        border: 1px solid rgba(57, 255, 20, 0.5) !important;
-        box-shadow: 0 0 20px 0 rgba(57, 255, 20, 0.5) !important;
+        border: 1px solid rgba(217, 70, 239, 0.6) !important;
+        box-shadow:
+          0 0 20px rgba(217, 70, 239, 0.5),
+          0 0 40px rgba(217, 70, 239, 0.3) !important;
       }
       .wallet-adapter-dropdown {
         background-color: rgba(30, 30, 30, 0.65) !important;
         border-radius: 1rem !important;
         border: 1px solid #333333 !important;
-        box-shadow: 0 0 20px 0 rgba(57, 255, 20, 0.5) !important;
+        box-shadow:
+          0 0 20px rgba(217, 70, 239, 0.5),
+          0 0 40px rgba(217, 70, 239, 0.3) !important;
       }
       .wallet-adapter-modal-title {
         color: #F5F5F5 !important;
@@ -116,7 +143,10 @@
       }
       .wallet-adapter-modal-list .wallet-adapter-button:hover {
         background: rgba(17, 17, 17, 0.75) !important;
-        border-color: #39FF14 !important;
+        border-color: #D946EF !important;
+        box-shadow:
+          0 0 10px rgba(217, 70, 239, 0.6),
+          0 0 20px rgba(217, 70, 239, 0.4) !important;
       }
     </style>
   <script type="importmap">

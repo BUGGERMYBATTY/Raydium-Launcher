@@ -228,7 +228,7 @@ const App: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className={`text-sm font-semibold rounded-full px-4 py-1.5 ${
             isMainnet
-              ? 'text-green-300 bg-green-900/50 border border-green-500'
+              ? 'text-fuchsia-300 bg-fuchsia-900/50 border border-fuchsia-500'
               : 'text-purple-300 bg-purple-900/50 border border-purple-500'
           }`}>
             {isMainnet ? 'Mainnet' : networkName}
@@ -246,7 +246,7 @@ const App: React.FC = () => {
             </div>
           )
         ) : (
-          <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-green border border-brand-border">
+          <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-purple border border-brand-border">
             {view === 'form' && (
               <>
                 <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>

@@ -125,7 +125,7 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
           </div>
       </div>
       
-      <div className="space-y-4 rounded-lg bg-brand-bg-transparent p-4 border border-brand-border shadow-glow-green">
+      <div className="space-y-4 rounded-lg bg-brand-bg-transparent p-4 border border-brand-border shadow-glow-purple">
         <h3 className="font-semibold text-brand-text">Authority Settings</h3>
         <div className="flex items-center">
             <div className="h-5 w-5 flex items-center justify-center rounded bg-brand-accent text-black">
