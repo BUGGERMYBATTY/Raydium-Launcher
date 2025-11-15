@@ -1,44 +1,23 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import type { TokenData } from '../types';
 import { UploadIcon } from './icons/UploadIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { uploadImageToPinata } from '../lib/pinata';
-import { PublicKey } from '@solana/web3.js';
 
 
 interface TokenFormProps {
   onSubmit: (data: Omit<TokenData, 'image'> & { image: string }) => void;
   isLoading: boolean;
   isConfirmModalOpen: boolean;
-  walletAddress?: string;
 }
 
-const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmModalOpen, walletAddress }) => {
+const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmModalOpen }) => {
   const [name, setName] = useState('');
   const [symbol, setSymbol] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
-  const defaultTreasuryAddress = import.meta.env.VITE_TREASURY_ADDRESS || walletAddress || '';
-  const [treasuryAddress, setTreasuryAddress] = useState(defaultTreasuryAddress);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
-
-  // Update treasury address when wallet address changes (only if no treasury address is set from env)
-  useEffect(() => {
-    if (!import.meta.env.VITE_TREASURY_ADDRESS && walletAddress && !treasuryAddress) {
-      setTreasuryAddress(walletAddress);
-    }
-  }, [walletAddress, treasuryAddress]);
-
-  const isTreasuryAddressValid = useMemo(() => {
-    if (!treasuryAddress) return false;
-    try {
-      new PublicKey(treasuryAddress);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }, [treasuryAddress]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,19 +49,16 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
     if (symbol.length > 10) missing.push('Symbol is too long');
     if (description.trim() === '') missing.push('Description');
     if (image === null) missing.push('Token Image');
-    if (treasuryAddress.trim() === '') {
-        missing.push('Treasury Address');
-    } else if (!isTreasuryAddressValid) {
-        missing.push('Invalid Treasury Address');
-    }
     return missing;
-  }, [name, symbol, description, image, treasuryAddress, isTreasuryAddressValid]);
+  }, [name, symbol, description, image]);
 
   const isFormValid = missingFields.length === 0;
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid && image) {
+      // Use configured treasury address from environment
+      const treasuryAddress = import.meta.env.VITE_TREASURY_ADDRESS || '';
       onSubmit({ name, symbol, description, image, treasuryAddress });
     }
   };
@@ -137,11 +113,6 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
       </div>
 
       <InputField id="token-description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
-
-      <InputField id="treasury-address" label="Treasury Wallet Address (Fee Recipient)" value={treasuryAddress} onChange={(e) => setTreasuryAddress(e.target.value)} placeholder="Treasury wallet for fee collection" />
-      {!isTreasuryAddressValid && treasuryAddress.length > 0 && <p className="text-sm text-red-500 -mt-4">Please enter a valid Solana wallet address.</p>}
-      {import.meta.env.VITE_TREASURY_ADDRESS && treasuryAddress === import.meta.env.VITE_TREASURY_ADDRESS && <p className="text-sm text-brand-text-secondary/80 -mt-4">Using configured treasury wallet for fees</p>}
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

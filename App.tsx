@@ -217,7 +217,6 @@ const App: React.FC = () => {
                   onSubmit={handleFormSubmit}
                   isLoading={isLoading}
                   isConfirmModalOpen={isConfirmModalOpen}
-                  walletAddress={wallet.publicKey?.toBase58()}
                 />
                  {error && (
                   <div className="mt-4 p-4 bg-red-900/50 border border-red-500 text-red-300 rounded-lg text-sm">
