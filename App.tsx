@@ -150,31 +150,16 @@ const App: React.FC = () => {
         )
       );
 
-      // CRITICAL FIX: Use deprecated getRecentBlockhash to avoid union type errors
-      console.log('Creating fresh RPC connection...');
-      const networkEnv = import.meta.env.VITE_SOLANA_NETWORK || 'mainnet-beta';
+      // Let the wallet adapter handle blockhash and signing automatically
+      console.log('Sending transaction...');
+      console.log('Using RPC:', connection.rpcEndpoint);
 
-      // Use different RPC endpoints that are known to work reliably
-      let rpcEndpoint;
-      if (import.meta.env.VITE_SOLANA_RPC_ENDPOINT) {
-        rpcEndpoint = import.meta.env.VITE_SOLANA_RPC_ENDPOINT;
-      } else if (networkEnv === 'mainnet-beta') {
-        // Try Solana public RPC
-        rpcEndpoint = 'https://api.mainnet-beta.solana.com';
-      } else {
-        rpcEndpoint = clusterApiUrl(networkEnv);
-      }
-
-      const freshConnection = new Connection(rpcEndpoint, 'confirmed');
-
-      console.log('Getting recent blockhash using deprecated method...');
-      // Use deprecated getRecentBlockhash method which is more stable
-      const recentBlockhashInfo = await freshConnection.getRecentBlockhash('confirmed');
-      transaction.recentBlockhash = recentBlockhashInfo.blockhash;
-      transaction.feePayer = wallet.publicKey;
-
-      console.log('Sending transaction with blockhash:', recentBlockhashInfo.blockhash.slice(0, 8) + '...');
-      const signature = await wallet.sendTransaction(transaction, freshConnection, {
+      // wallet.sendTransaction automatically:
+      // 1. Gets the latest blockhash
+      // 2. Sets the fee payer
+      // 3. Signs with the wallet
+      // 4. Sends the transaction
+      const signature = await wallet.sendTransaction(transaction, connection, {
         signers: [mintKeypair],
         skipPreflight: false,
         preflightCommitment: 'confirmed'
@@ -183,8 +168,14 @@ const App: React.FC = () => {
       console.log('Transaction sent, signature:', signature);
       console.log('Confirming transaction...');
 
-      // Use simpler confirmation method
-      await freshConnection.confirmTransaction(signature, 'confirmed');
+      // Confirm the transaction
+      const latestBlockhash = await connection.getLatestBlockhash('confirmed');
+      await connection.confirmTransaction({
+        signature,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight
+      }, 'confirmed');
+
       console.log('Transaction confirmed!');
 
       setCreatedTokenInfo({
