@@ -62,10 +62,14 @@ const App: React.FC = () => {
       
       // 2. Create new mint keypair
       const mintKeypair = Keypair.generate();
-      // EMERGENCY FIX: Hardcode mint size to avoid type errors with getMintLen
-      // Standard token mint without extensions is always 82 bytes
+
+      // CRITICAL FIX: Bypass getMinimumBalanceForRentExemption entirely
+      // Hardcode the rent-exempt lamports for an 82-byte mint account
+      // Standard token mint (82 bytes) requires ~1.46 SOL rent exemption
       const mintLen = 82;
-      const lamports = await connection.getMinimumBalanceForRentExemption(mintLen);
+      const lamports = 1461600; // Hardcoded rent-exempt minimum for 82-byte account
+
+      console.log('Using hardcoded values - mintLen:', mintLen, 'lamports:', lamports);
 
       // 3. Get Associated Token Account address
       const associatedTokenAddress = await getAssociatedTokenAddress(
