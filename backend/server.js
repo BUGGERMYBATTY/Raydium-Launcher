@@ -17,8 +17,18 @@ const PORT = process.env.BACKEND_PORT || 3001;
 // Configure multer for file uploads (in-memory storage)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Middleware
-app.use(cors());
+// Middleware - CORS Configuration
+const corsOptions = {
+    origin: [
+        'https://randygarsh.com',
+        'https://www.randygarsh.com',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Security: Ensure JWT is configured
