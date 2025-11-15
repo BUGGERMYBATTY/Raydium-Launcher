@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import FormData from 'form-data';
+import axios from 'axios';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -131,30 +132,17 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
         // Add options as JSON string
         formData.append('pinataOptions', JSON.stringify({ cidVersion: 0 }));
 
-        // Upload to Pinata with proper headers
-        const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-            method: "POST",
+        // Upload to Pinata using axios
+        const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
             headers: {
                 'Authorization': `Bearer ${PINATA_JWT}`,
                 ...formData.getHeaders()
             },
-            body: formData,
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Pinata Image Upload Error:', response.status, errorText);
-            let errorData;
-            try {
-                errorData = JSON.parse(errorText);
-            } catch (e) {
-                errorData = { error: { reason: errorText } };
-            }
-            throw new Error(`Pinata API Error (${response.status}): ${errorData.error?.reason || errorData.error || response.statusText}`);
-        }
-
-        const result = await response.json();
-        const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${result.IpfsHash}`;
+        const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${response.data.IpfsHash}`;
 
         console.log(`Image uploaded successfully: ${ipfsUrl}`);
         res.json({ success: true, url: ipfsUrl });
@@ -209,30 +197,17 @@ app.post('/api/upload-metadata', async (req, res) => {
         // Add options as JSON string
         formData.append('pinataOptions', JSON.stringify({ cidVersion: 0 }));
 
-        // Upload to Pinata with proper headers
-        const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-            method: "POST",
+        // Upload to Pinata using axios
+        const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
             headers: {
                 'Authorization': `Bearer ${PINATA_JWT}`,
                 ...formData.getHeaders()
             },
-            body: formData,
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Pinata Metadata Upload Error:', response.status, errorText);
-            let errorData;
-            try {
-                errorData = JSON.parse(errorText);
-            } catch (e) {
-                errorData = { error: { reason: errorText } };
-            }
-            throw new Error(`Pinata API Error (${response.status}): ${errorData.error?.reason || errorData.error || response.statusText}`);
-        }
-
-        const result = await response.json();
-        const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${result.IpfsHash}`;
+        const ipfsUrl = `${DEDICATED_GATEWAY}/ipfs/${response.data.IpfsHash}`;
 
         console.log(`Metadata uploaded successfully: ${ipfsUrl}`);
         res.json({ success: true, url: ipfsUrl });
