@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import FormData from 'form-data';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -105,7 +106,6 @@ app.post('/api/upload-image', upload.single('file'), async (req, res) => {
         const uniqueFileName = generateFileName(req.file.originalname, tokenName, tokenSymbol);
 
         // Create FormData for Pinata API
-        const FormData = (await import('form-data')).default;
         const formData = new FormData();
 
         // Add file buffer to form data
@@ -167,7 +167,6 @@ app.post('/api/upload-metadata', async (req, res) => {
         const uniqueFileName = `${sanitizeForFilename(symbol)}-metadata.json`;
 
         // Create FormData for Pinata API
-        const FormData = (await import('form-data')).default;
         const formData = new FormData();
 
         // Convert JSON to buffer and add to form data
