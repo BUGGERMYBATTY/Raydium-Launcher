@@ -23,7 +23,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
 
   return (
     <div className="text-center animate-fade-in">
-      <h2 className="text-3xl font-bold text-brand-accent mb-4">Token Created Successfully!</h2>
+      <h2 className="text-3xl font-bold text-brand-accent mb-4 uppercase">Token Created Successfully!</h2>
       <p className="text-brand-text-secondary mb-4">
         Your new Solana token is live on the Solana blockchain.
       </p>
@@ -43,16 +43,16 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
               <label className="text-xs font-mono text-brand-text-secondary">TOKEN ADDRESS</label>
               <div className="flex items-center gap-2">
                 <p className="text-brand-text-secondary break-all font-mono text-sm bg-brand-surface-transparent p-2 rounded-md flex-grow">{tokenInfo.address}</p>
-                <button onClick={handleCopy} className="flex-shrink-0 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 bg-brand-accent hover:bg-brand-accent-hover text-white">
+                <button onClick={handleCopy} className="flex-shrink-0 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 bg-brand-accent hover:bg-brand-accent-hover text-white uppercase">
                   {copied ? (
                     <>
                       <CheckIcon className="h-5 w-5" />
-                      Copied
+                      COPIED
                     </>
                   ) : (
                     <>
                       <CopyIcon className="h-5 w-5" />
-                      Copy
+                      COPY
                     </>
                   )}
                 </button>
@@ -67,7 +67,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
       </div>
 
       <div className="bg-brand-bg-transparent p-6 rounded-lg text-left border border-brand-border shadow-glow-purple">
-        <h3 className="font-semibold text-xl mb-4 text-brand-accent">Next Steps: Launch on Raydium</h3>
+        <h3 className="font-semibold text-xl mb-4 text-brand-accent uppercase">Next Steps: Launch on Raydium</h3>
         <ol className="list-decimal list-inside space-y-2 text-brand-text-secondary">
           <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">Raydium Create Pool</a> page.</li>
           <li>Connect your wallet.</li>
@@ -76,8 +76,8 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
         </ol>
       </div>
 
-      <button onClick={onReset} className="mt-8 w-full py-3 px-4 border border-brand-accent rounded-lg shadow-sm text-sm font-medium text-brand-accent hover:bg-brand-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-colors duration-300">
-        Create Another Token
+      <button onClick={onReset} className="mt-8 w-full py-3 px-4 border border-brand-accent rounded-lg shadow-sm text-sm font-medium text-brand-accent hover:bg-brand-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-colors duration-300 uppercase">
+        CREATE ANOTHER TOKEN
       </button>
     </div>
   );

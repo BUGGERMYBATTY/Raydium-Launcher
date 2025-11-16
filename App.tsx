@@ -276,10 +276,11 @@ const App: React.FC = () => {
         {!wallet.connected ? (
           !isWalletModalVisible && (
             <div className="text-center space-y-6">
-              <h1 className="text-4xl font-bold">Create a Solana Token</h1>
+              <h1 className="text-4xl font-bold uppercase">Create a Solana Token</h1>
               <p className="text-brand-text-secondary">No coding required. Launch your token in minutes.</p>
+              <p className="text-2xl font-bold text-neon-purple uppercase tracking-wider">Create Launch STRIKE</p>
               <div className="pt-4">
-                <WalletMultiButton>Connect Wallet to Get Started</WalletMultiButton>
+                <WalletMultiButton>CONNECT WALLET TO GET STARTED</WalletMultiButton>
               </div>
             </div>
           )
@@ -287,7 +288,7 @@ const App: React.FC = () => {
           <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-purple border border-brand-border">
             {view === 'form' && (
               <>
-                <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>
+                <h1 className="text-3xl font-bold mb-2 text-center uppercase">Create a New Solana Token</h1>
                 <p className="text-brand-text-secondary mb-4 text-center">Fill in the details below to mint your new token.</p>
                 <p className="text-sm text-brand-text-secondary/80 mb-8 text-center">
                   Note: Token Supply, Decimals, and Authority settings are fixed.
@@ -314,7 +315,7 @@ const App: React.FC = () => {
       {isConfirmModalOpen && tokenDataToConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center animate-fade-in p-4">
           <div className="bg-brand-surface rounded-2xl shadow-2xl p-8 m-4 w-full max-w-lg relative border border-brand-accent/50">
-            <h2 className="text-2xl font-bold mb-4 text-brand-text">Confirm Transaction</h2>
+            <h2 className="text-2xl font-bold mb-4 text-brand-text uppercase">Confirm Transaction</h2>
             <p className="text-brand-text-secondary mb-6">Please review the details below before proceeding.</p>
             
             <div className="space-y-4 text-left bg-brand-bg-transparent p-4 rounded-lg border border-brand-border mb-6">
@@ -333,14 +334,14 @@ const App: React.FC = () => {
             </div>
             
             <div className="flex justify-end gap-4">
-              <button onClick={() => setIsConfirmModalOpen(false)} disabled={isLoading} className="py-2 px-4 border border-brand-border rounded-lg text-sm font-medium text-brand-text-secondary hover:border-brand-accent transition-colors disabled:opacity-50">Cancel</button>
-              <button onClick={confirmAndCreateToken} disabled={isLoading} className="w-40 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50">
+              <button onClick={() => setIsConfirmModalOpen(false)} disabled={isLoading} className="py-2 px-4 border border-brand-border rounded-lg text-sm font-medium text-brand-text-secondary hover:border-brand-accent transition-colors disabled:opacity-50 uppercase">CANCEL</button>
+              <button onClick={confirmAndCreateToken} disabled={isLoading} className="w-40 flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 uppercase">
                 {isLoading ? (
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                ) : 'Confirm & Create'}
+                ) : 'CONFIRM & CREATE'}
               </button>
             </div>
           </div>
