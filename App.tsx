@@ -257,7 +257,7 @@ const App: React.FC = () => {
     <div className="min-h-screen text-brand-text flex flex-col p-8 font-sans">
       <header className="w-full flex justify-between items-center mb-4">
         <img
-          src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeidu3gk5hxcaaabqu2dsr4jmmtjvmo2ukqlmxlgxx3qm7hu2ggl3g4"
+          src="https://yellow-peculiar-cephalopod-560.mypinata.cloud/ipfs/bafybeid5l5jhuqjgwhbrs7a4fe6ilgqh37t6nlvmsx6v5uflfl3hcnnvrm"
           alt="Cobra Launch"
           className="h-48"
         />
