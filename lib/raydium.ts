@@ -107,12 +107,24 @@ export async function createCpmmPool(
   tokenAmount: number,
   solAmount: number,
   tokenDecimals: number = 9
-): Promise<string> {
+): Promise<{ signature: string; poolId: string }> {
   if (!wallet.publicKey || !wallet.signTransaction) {
     throw new Error('Wallet not connected');
   }
 
   try {
+    // Validate amounts
+    if (solAmount <= 0 || tokenAmount <= 0) {
+      throw new Error('Amounts must be greater than 0');
+    }
+
+    // Check SOL balance
+    const balance = await connection.getBalance(wallet.publicKey);
+    const requiredSol = (solAmount + 1) * LAMPORTS_PER_SOL; // +1 SOL for fees
+    if (balance < requiredSol) {
+      throw new Error(`Insufficient SOL balance. Required: ${requiredSol / LAMPORTS_PER_SOL} SOL, Available: ${balance / LAMPORTS_PER_SOL} SOL`);
+    }
+
     // Initialize Raydium SDK
     const raydium = await Raydium.load({
       owner: wallet.publicKey,
@@ -127,7 +139,20 @@ export async function createCpmmPool(
     const mintB = await raydium.token.getTokenInfo(NATIVE_SOL.mint.toBase58());
 
     if (!mintA || !mintB) {
-      throw new Error('Failed to fetch token information');
+      throw new Error('Failed to fetch token information. Ensure the token exists on devnet.');
+    }
+
+    // Check token balance
+    try {
+      const tokenAccount = await getAssociatedTokenAddress(tokenMint, wallet.publicKey);
+      const accountInfo = await getAccount(connection, tokenAccount);
+      const tokenBalance = Number(accountInfo.amount) / Math.pow(10, tokenDecimals);
+
+      if (tokenBalance < tokenAmount) {
+        throw new Error(`Insufficient token balance. Required: ${tokenAmount}, Available: ${tokenBalance}`);
+      }
+    } catch (error) {
+      throw new Error(`Failed to check token balance: ${(error as Error).message}`);
     }
 
     // Get CPMM config (use default devnet config)
@@ -135,10 +160,17 @@ export async function createCpmmPool(
       id: new PublicKey('9zSzfkYy6awexsHvmggeH36pfVUdDGyCcwmjT3AQPBj6'),
       index: 0,
       protocolFeeRate: 25000,
-      tradeFeeRate: 25,
+      tradeFeeRate: 25, // 0.25% trading fee
       fundFeeRate: 40000,
       createPoolFee: new BN('0'),
     };
+
+    console.log('Creating CPMM pool with parameters:', {
+      tokenMint: tokenMint.toBase58(),
+      tokenAmount,
+      solAmount,
+      decimals: tokenDecimals,
+    });
 
     // Create the pool
     const { execute, extInfo } = await raydium.cpmm.createPool({
@@ -157,12 +189,23 @@ export async function createCpmmPool(
     // Execute the transaction
     const { txId } = await execute({ sendAndConfirm: true });
 
-    console.log('CPMM Pool created with signature:', txId);
-    console.log('Pool ID:', extInfo.address.poolId);
+    const poolId = extInfo.address.poolId.toBase58();
 
-    return txId;
+    console.log('✓ CPMM Pool created successfully!');
+    console.log('  Transaction:', txId);
+    console.log('  Pool ID:', poolId);
+
+    return { signature: txId, poolId };
   } catch (error) {
     console.error('Error creating CPMM pool:', error);
+
+    // Provide more helpful error messages
+    if ((error as Error).message?.includes('0x1')) {
+      throw new Error('Insufficient funds for transaction. Please ensure you have enough SOL for fees.');
+    } else if ((error as Error).message?.includes('0x0')) {
+      throw new Error('Pool may already exist for this token pair.');
+    }
+
     throw new Error(`Failed to create CPMM pool: ${(error as Error).message}`);
   }
 }
@@ -246,16 +289,27 @@ export async function createLiquidityPool(
   solAmount: number,
   tokenAmount: number,
   tokenDecimals: number = 9
-): Promise<{ signature: string; poolId?: string }> {
+): Promise<{ signature: string; poolId: string }> {
   if (!wallet.publicKey) {
     throw new Error('Wallet not connected');
   }
 
-  const tokenMintPubkey = new PublicKey(tokenMint);
+  // Validate token mint address
+  let tokenMintPubkey: PublicKey;
+  try {
+    tokenMintPubkey = new PublicKey(tokenMint);
+  } catch (error) {
+    throw new Error('Invalid token mint address');
+  }
 
   try {
+    console.log('Starting liquidity pool creation...');
+    console.log('Token:', tokenMint);
+    console.log('SOL Amount:', solAmount);
+    console.log('Token Amount:', tokenAmount);
+
     // Use CPMM pool creation (simpler, no market required)
-    const signature = await createCpmmPool(
+    const result = await createCpmmPool(
       connection,
       wallet,
       tokenMintPubkey,
@@ -264,7 +318,8 @@ export async function createLiquidityPool(
       tokenDecimals
     );
 
-    return { signature };
+    console.log('Pool creation completed successfully!');
+    return result;
   } catch (error) {
     console.error('Error in createLiquidityPool:', error);
     throw error;

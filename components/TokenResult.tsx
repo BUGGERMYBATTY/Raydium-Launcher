@@ -16,6 +16,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
   const [isPoolModalOpen, setIsPoolModalOpen] = useState(false);
   const [poolCreationSuccess, setPoolCreationSuccess] = useState(false);
   const [poolSignature, setPoolSignature] = useState<string | null>(null);
+  const [poolId, setPoolId] = useState<string | null>(null);
 
   const wallet = useWallet();
   const { connection } = useConnection();
@@ -38,6 +39,7 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
       );
 
       setPoolSignature(result.signature);
+      setPoolId(result.poolId);
       setPoolCreationSuccess(true);
       setIsPoolModalOpen(false);
     } catch (error) {
@@ -102,22 +104,33 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
         {poolCreationSuccess && poolSignature ? (
           <div className="space-y-4">
             <div className="bg-green-900/30 border border-green-600 rounded-lg p-4">
-              <p className="text-green-300 font-semibold mb-2">✓ Liquidity Pool Created Successfully!</p>
-              <p className="text-sm text-green-300/80">
-                View transaction: {' '}
-                <a
-                  href={`https://solscan.io/tx/${poolSignature}?cluster=devnet`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-brand-accent-hover hover:underline"
-                >
-                  {poolSignature.slice(0, 8)}...{poolSignature.slice(-8)}
-                </a>
-              </p>
+              <p className="text-green-300 font-semibold mb-3">✓ Liquidity Pool Created Successfully!</p>
+              <div className="space-y-2 text-sm text-green-300/80">
+                <div>
+                  <span className="font-semibold">Transaction:</span>{' '}
+                  <a
+                    href={`https://solscan.io/tx/${poolSignature}?cluster=devnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand-accent-hover hover:underline font-mono"
+                  >
+                    {poolSignature.slice(0, 8)}...{poolSignature.slice(-8)}
+                  </a>
+                </div>
+                {poolId && (
+                  <div>
+                    <span className="font-semibold">Pool ID:</span>{' '}
+                    <span className="font-mono break-all">{poolId}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <p className="text-brand-text-secondary text-sm">
-              Your token now has a liquidity pool! Trading will be available shortly on Raydium.
+              Your token now has a liquidity pool! Trading will be available shortly on Raydium DEX.
             </p>
+            <div className="text-xs text-brand-text-secondary/60">
+              Note: It may take a few minutes for the pool to appear on Raydium's UI.
+            </div>
           </div>
         ) : (
           <>
