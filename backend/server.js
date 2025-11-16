@@ -225,6 +225,106 @@ app.post('/api/upload-metadata', async (req, res) => {
     }
 });
 
+// Liquidity pool creation endpoint
+app.post('/api/create-liquidity', async (req, res) => {
+    try {
+        const { tokenMint, tokenSymbol, baseAmount, quoteAmount, walletPublicKey } = req.body;
+
+        // Validate inputs
+        if (!tokenMint || !baseAmount || !quoteAmount || !walletPublicKey) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: tokenMint, baseAmount, quoteAmount, walletPublicKey'
+            });
+        }
+
+        // Validate amounts
+        const baseAmountNum = parseFloat(baseAmount);
+        const quoteAmountNum = parseFloat(quoteAmount);
+
+        if (isNaN(baseAmountNum) || baseAmountNum <= 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid baseAmount: must be a positive number'
+            });
+        }
+
+        if (isNaN(quoteAmountNum) || quoteAmountNum < 0.01) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid quoteAmount: minimum 0.01 SOL required'
+            });
+        }
+
+        console.log(`Creating liquidity pool for token: ${tokenMint}`);
+        console.log(`Amounts - Base: ${baseAmount} ${tokenSymbol || 'tokens'}, Quote: ${quoteAmount} SOL`);
+        console.log(`Wallet: ${walletPublicKey}`);
+
+        // IMPORTANT: This is a placeholder implementation
+        // The actual Raydium CPMM SDK integration will be added after installing dependencies
+        // For now, we return an error directing users to manual pool creation
+
+        return res.status(501).json({
+            success: false,
+            error: 'Liquidity pool creation is not yet fully implemented. Please create your pool manually at https://raydium.io/liquidity/create/',
+            message: 'Backend integration with Raydium SDK pending. Use manual pool creation for now.',
+            details: {
+                tokenMint,
+                baseAmount,
+                quoteAmount,
+                estimatedFees: {
+                    platformFee: '0.15 SOL',
+                    raydiumFee: '0.17 SOL',
+                    totalFees: '0.32 SOL'
+                }
+            }
+        });
+
+        // TODO: Implement Raydium CPMM SDK integration
+        // 1. Import Raydium SDK
+        // 2. Initialize CPMM client
+        // 3. Create pool transaction
+        // 4. Add platform fee transfer (0.15 SOL to treasury)
+        // 5. Serialize transaction
+        // 6. Return serialized transaction + pool address
+
+        /*
+        // Example structure for when SDK is integrated:
+        const transaction = await createCPMMPool({
+            tokenMint,
+            baseAmount,
+            quoteAmount,
+            walletPublicKey
+        });
+
+        // Add platform fee
+        transaction.add(
+            SystemProgram.transfer({
+                fromPubkey: new PublicKey(walletPublicKey),
+                toPubkey: new PublicKey(process.env.VITE_TREASURY_ADDRESS),
+                lamports: 0.15 * LAMPORTS_PER_SOL
+            })
+        );
+
+        const serializedTransaction = transaction.serialize().toString('base64');
+
+        res.json({
+            success: true,
+            transaction: serializedTransaction,
+            poolAddress: 'POOL_ADDRESS_HERE',
+            message: 'Pool transaction ready for signing'
+        });
+        */
+
+    } catch (error) {
+        console.error('Liquidity pool creation error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to create liquidity pool transaction'
+        });
+    }
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Cobra Launch Backend API running on port ${PORT}`);

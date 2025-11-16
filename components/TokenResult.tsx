@@ -6,9 +6,10 @@ import { CheckIcon } from './icons/CheckIcon';
 interface TokenResultProps {
   tokenInfo: CreatedTokenInfo;
   onReset: () => void;
+  onCreateLiquidity?: () => void;
 }
 
-const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
+const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset, onCreateLiquidity }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -66,17 +67,41 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
         </div>
       </div>
 
-      <div className="bg-brand-bg-transparent p-6 rounded-lg text-left border border-brand-border shadow-glow-purple">
-        <h3 className="font-semibold text-xl mb-4 text-brand-accent uppercase">Next Steps: Launch on Raydium</h3>
-        <ol className="list-decimal list-inside space-y-2 text-brand-text-secondary">
-          <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">Raydium Create Pool</a> page.</li>
-          <li>Connect your wallet.</li>
-          <li>Paste your new token address to set up the liquidity pool.</li>
-          <li>Follow the instructions on Raydium to complete the launch.</li>
+      <div className="bg-gradient-to-r from-purple-900/20 to-cyan-900/20 p-8 rounded-lg border-2 border-brand-accent shadow-glow-purple mt-6">
+        <h3 className="font-semibold text-2xl mb-3 text-brand-accent uppercase text-center">🚀 Next Step: Make Your Token Tradeable</h3>
+        <p className="text-center text-brand-text-secondary mb-6">Create a liquidity pool to enable trading on Raydium</p>
+
+        {onCreateLiquidity && (
+          <button
+            onClick={onCreateLiquidity}
+            className="w-full py-4 px-6 mb-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-brand-accent hover:bg-brand-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300 uppercase shadow-glow-purple-intense"
+          >
+            CREATE LIQUIDITY POOL NOW
+          </button>
+        )}
+
+        <div className="bg-brand-bg-transparent p-4 rounded-lg border border-brand-border">
+          <p className="text-sm text-brand-text-secondary mb-2">💡 <strong>Why add liquidity?</strong></p>
+          <ul className="text-sm text-brand-text-secondary space-y-1 list-disc list-inside">
+            <li>Makes your token buyable/sellable on DEXs</li>
+            <li>Sets the initial price of your token</li>
+            <li>Earns you 0.25% from every trade</li>
+            <li>Your liquidity is not lost - withdraw anytime via LP tokens</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="bg-brand-bg-transparent p-6 rounded-lg text-left border border-brand-border mt-6">
+        <h3 className="font-semibold text-lg mb-3 text-brand-accent uppercase">Alternative: Create Pool Manually on Raydium</h3>
+        <ol className="list-decimal list-inside space-y-2 text-sm text-brand-text-secondary">
+          <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">Raydium Create Pool</a> page</li>
+          <li>Connect your wallet</li>
+          <li>Paste your new token address to set up the liquidity pool</li>
+          <li>Follow the instructions on Raydium to complete the launch</li>
         </ol>
       </div>
 
-      <button onClick={onReset} className="mt-8 w-full py-3 px-4 border border-brand-accent rounded-lg shadow-sm text-sm font-medium text-brand-accent hover:bg-brand-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-colors duration-300 uppercase">
+      <button onClick={onReset} className="mt-6 w-full py-3 px-4 border border-brand-accent rounded-lg shadow-sm text-sm font-medium text-brand-accent hover:bg-brand-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-colors duration-300 uppercase">
         CREATE ANOTHER TOKEN
       </button>
     </div>

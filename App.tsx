@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import { Buffer } from 'buffer';
 import TokenForm from './components/TokenForm';
 import TokenResult from './components/TokenResult';
+import CreateLiquidity from './components/CreateLiquidity';
 import type { TokenData, CreatedTokenInfo } from './types';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
@@ -16,9 +17,10 @@ const TOKEN_SUPPLY = 1_000_000_000;
 const CREATION_FEE_SOL = 0.1;
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'form' | 'result'>('form');
+  const [view, setView] = useState<'form' | 'result' | 'liquidity'>('form');
   const [isLoading, setIsLoading] = useState(false);
   const [createdTokenInfo, setCreatedTokenInfo] = useState<CreatedTokenInfo | null>(null);
+  const [poolAddress, setPoolAddress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [tokenDataToConfirm, setTokenDataToConfirm] = useState<TokenData | null>(null);
@@ -246,7 +248,23 @@ const App: React.FC = () => {
   const handleReset = useCallback(() => {
     setView('form');
     setCreatedTokenInfo(null);
+    setPoolAddress(null);
     setError(null);
+  }, []);
+
+  const handleCreateLiquidity = useCallback(() => {
+    setView('liquidity');
+  }, []);
+
+  const handleLiquiditySuccess = useCallback((poolAddr: string) => {
+    setPoolAddress(poolAddr);
+    // You could add a success view or navigate back to result with pool info
+    alert(`Liquidity pool created successfully! Pool Address: ${poolAddr}`);
+    setView('result');
+  }, []);
+
+  const handleBackFromLiquidity = useCallback(() => {
+    setView('result');
   }, []);
 
   // Get network name from environment variable for display
@@ -310,7 +328,18 @@ const App: React.FC = () => {
               </>
             )}
             {view === 'result' && createdTokenInfo && (
-              <TokenResult tokenInfo={createdTokenInfo} onReset={handleReset} />
+              <TokenResult
+                tokenInfo={createdTokenInfo}
+                onReset={handleReset}
+                onCreateLiquidity={handleCreateLiquidity}
+              />
+            )}
+            {view === 'liquidity' && createdTokenInfo && (
+              <CreateLiquidity
+                tokenInfo={createdTokenInfo}
+                onBack={handleBackFromLiquidity}
+                onSuccess={handleLiquiditySuccess}
+              />
             )}
           </div>
         )}
