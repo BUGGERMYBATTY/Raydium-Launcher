@@ -3,7 +3,6 @@ import type { TokenData } from '../types';
 import { UploadIcon } from './icons/UploadIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { uploadImageToPinata } from '../lib/pinata';
-import { PublicKey } from '@solana/web3.js';
 
 
 interface TokenFormProps {
@@ -17,19 +16,8 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
   const [symbol, setSymbol] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
-  const [treasuryAddress, setTreasuryAddress] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
-  
-  const isTreasuryAddressValid = useMemo(() => {
-    if (!treasuryAddress) return false;
-    try {
-      new PublicKey(treasuryAddress);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }, [treasuryAddress]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -61,19 +49,16 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
     if (symbol.length > 10) missing.push('Symbol is too long');
     if (description.trim() === '') missing.push('Description');
     if (image === null) missing.push('Token Image');
-    if (treasuryAddress.trim() === '') {
-        missing.push('Treasury Address');
-    } else if (!isTreasuryAddressValid) {
-        missing.push('Invalid Treasury Address');
-    }
     return missing;
-  }, [name, symbol, description, image, treasuryAddress, isTreasuryAddressValid]);
+  }, [name, symbol, description, image]);
 
   const isFormValid = missingFields.length === 0;
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid && image) {
+      // Use configured treasury address from environment
+      const treasuryAddress = import.meta.env.VITE_TREASURY_ADDRESS || '';
       onSubmit({ name, symbol, description, image, treasuryAddress });
     }
   };
@@ -129,10 +114,6 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
 
       <InputField id="token-description" label="Description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe your token's purpose and vision." maxLength={200} type="textarea"/>
 
-      <InputField id="treasury-address" label="Treasury Wallet Address" value={treasuryAddress} onChange={(e) => setTreasuryAddress(e.target.value)} placeholder="Wallet address to receive the creation fee" />
-      {!isTreasuryAddressValid && treasuryAddress.length > 0 && <p className="text-sm text-red-500 -mt-4">Please enter a valid Solana wallet address.</p>}
-
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-brand-text-secondary mb-2">Token Supply</label>
@@ -144,8 +125,8 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
           </div>
       </div>
       
-      <div className="space-y-4 rounded-lg bg-brand-bg-transparent p-4 border border-brand-border shadow-glow-green">
-        <h3 className="font-semibold text-brand-text">Authority Settings</h3>
+      <div className="space-y-4 rounded-lg bg-brand-bg-transparent p-4 border border-brand-border shadow-glow-purple">
+        <h3 className="font-semibold text-brand-text uppercase">Authority Settings</h3>
         <div className="flex items-center">
             <div className="h-5 w-5 flex items-center justify-center rounded bg-brand-accent text-black">
                 <CheckIcon className="h-4 w-4" />
@@ -161,20 +142,20 @@ const TokenForm: React.FC<TokenFormProps> = ({ onSubmit, isLoading, isConfirmMod
       </div>
       
       <div className="text-center text-sm text-brand-text-secondary p-3 bg-brand-bg-transparent border border-brand-border rounded-lg">
-        Creation Fee: <span className="font-bold text-brand-accent">0.05 SOL</span>. This covers all transaction costs.
+        Creation Fee: <span className="font-bold text-brand-accent">0.1 SOL</span>. This covers all transaction costs.
       </div>
 
       <div className="relative group">
-        <button type="submit" disabled={!isFormValid || isLoading || isUploading || isConfirmModalOpen} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300">
+        <button type="submit" disabled={!isFormValid || isLoading || isUploading || isConfirmModalOpen} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-accent hover:bg-brand-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-all duration-300 uppercase">
           {isLoading ? (
             <>
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Creating Token...
+              CREATING TOKEN...
             </>
-          ) : 'Create Token'}
+          ) : 'CREATE TOKEN'}
         </button>
         {!isFormValid && !isLoading && !isUploading && !isConfirmModalOpen && (
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max p-2 bg-brand-bg border border-brand-border rounded-md shadow-lg text-sm text-brand-text-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
