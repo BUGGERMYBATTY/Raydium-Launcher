@@ -147,6 +147,12 @@ const App: React.FC = () => {
             wallet.publicKey,
             AuthorityType.MintTokens,
             null
+        ),
+        createSetAuthorityInstruction(
+            mintKeypair.publicKey,
+            wallet.publicKey,
+            AuthorityType.FreezeAccount,
+            null
         )
       );
 
