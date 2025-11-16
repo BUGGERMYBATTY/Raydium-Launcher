@@ -9,16 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
+    "@raydium-io/raydium-sdk-v2": "^0.2.30-alpha",
+    "@solana/spl-token": "^0.4.6",
+    "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
-    "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-wallets": "^0.19.26",
     "@solana/web3.js": "^1.91.4",
-    "@solana/spl-token": "^0.4.6",
-    "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
-    "buffer": "^6.0.3"
+    "bn.js": "^5.2.2",
+    "buffer": "^6.0.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

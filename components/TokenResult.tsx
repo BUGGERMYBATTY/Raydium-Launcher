@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 import type { CreatedTokenInfo } from '../types';
 import { CopyIcon } from './icons/CopyIcon';
 import { CheckIcon } from './icons/CheckIcon';
+import CreatePoolModal from './CreatePoolModal';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { createLiquidityPool } from '../lib/raydium';
 
 interface TokenResultProps {
   tokenInfo: CreatedTokenInfo;
@@ -10,12 +13,38 @@ interface TokenResultProps {
 
 const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
   const [copied, setCopied] = useState(false);
+  const [isPoolModalOpen, setIsPoolModalOpen] = useState(false);
+  const [poolCreationSuccess, setPoolCreationSuccess] = useState(false);
+  const [poolSignature, setPoolSignature] = useState<string | null>(null);
+
+  const wallet = useWallet();
+  const { connection } = useConnection();
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(tokenInfo.address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [tokenInfo.address]);
+
+  const handleCreatePool = useCallback(async (solAmount: number, tokenAmount: number) => {
+    try {
+      const result = await createLiquidityPool(
+        connection,
+        wallet,
+        tokenInfo.address,
+        solAmount,
+        tokenAmount,
+        9 // TOKEN_DECIMALS
+      );
+
+      setPoolSignature(result.signature);
+      setPoolCreationSuccess(true);
+      setIsPoolModalOpen(false);
+    } catch (error) {
+      console.error('Pool creation error:', error);
+      throw error;
+    }
+  }, [connection, wallet, tokenInfo.address]);
   
   const explorerUrl = `https://solscan.io/tx/${tokenInfo.transactionSignature}?cluster=devnet`;
 
@@ -70,17 +99,60 @@ const TokenResult: React.FC<TokenResultProps> = ({ tokenInfo, onReset }) => {
 
       <div className="bg-brand-bg-transparent p-6 rounded-lg text-left border border-brand-border shadow-glow-green">
         <h3 className="font-semibold text-xl mb-4 text-brand-accent">Next Steps: Launch on Raydium</h3>
-        <ol className="list-decimal list-inside space-y-2 text-brand-text-secondary">
-          <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">Raydium Create Pool</a> page.</li>
-          <li>Connect your wallet.</li>
-          <li>Paste your new token address to set up the liquidity pool.</li>
-          <li>Follow the instructions on Raydium to complete the launch.</li>
-        </ol>
+        {poolCreationSuccess && poolSignature ? (
+          <div className="space-y-4">
+            <div className="bg-green-900/30 border border-green-600 rounded-lg p-4">
+              <p className="text-green-300 font-semibold mb-2">✓ Liquidity Pool Created Successfully!</p>
+              <p className="text-sm text-green-300/80">
+                View transaction: {' '}
+                <a
+                  href={`https://solscan.io/tx/${poolSignature}?cluster=devnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-accent-hover hover:underline"
+                >
+                  {poolSignature.slice(0, 8)}...{poolSignature.slice(-8)}
+                </a>
+              </p>
+            </div>
+            <p className="text-brand-text-secondary text-sm">
+              Your token now has a liquidity pool! Trading will be available shortly on Raydium.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="text-brand-text-secondary mb-4">
+              Create a liquidity pool to enable trading for your token on Raydium DEX.
+            </p>
+            <button
+              onClick={() => setIsPoolModalOpen(true)}
+              className="w-full py-3 px-4 bg-brand-accent hover:bg-brand-accent-hover text-white rounded-lg shadow-sm text-sm font-medium transition-colors duration-300 mb-4"
+            >
+              Create Liquidity Pool
+            </button>
+            <div className="text-sm text-brand-text-secondary/80">
+              <p className="mb-2">Or create manually:</p>
+              <ol className="list-decimal list-inside space-y-2">
+                <li>Go to the <a href="https://raydium.io/liquidity/create/" target="_blank" rel="noopener noreferrer" className="text-brand-accent-hover hover:underline">Raydium Create Pool</a> page.</li>
+                <li>Connect your wallet.</li>
+                <li>Paste your token address to set up the liquidity pool.</li>
+                <li>Follow the instructions on Raydium to complete the launch.</li>
+              </ol>
+            </div>
+          </>
+        )}
       </div>
 
       <button onClick={onReset} className="mt-8 w-full py-3 px-4 border border-brand-accent rounded-lg shadow-sm text-sm font-medium text-brand-accent hover:bg-brand-accent hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-surface focus:ring-brand-accent transition-colors duration-300">
         Create Another Token
       </button>
+
+      <CreatePoolModal
+        isOpen={isPoolModalOpen}
+        onClose={() => setIsPoolModalOpen(false)}
+        tokenInfo={tokenInfo}
+        onCreatePool={handleCreatePool}
+      />
     </div>
   );
 };
