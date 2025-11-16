@@ -278,7 +278,11 @@ const App: React.FC = () => {
             <div className="text-center space-y-6">
               <h1 className="text-4xl font-bold uppercase">Create a Solana Token</h1>
               <p className="text-brand-text-secondary">No coding required. Launch your token in minutes.</p>
-              <p className="text-2xl font-bold text-neon-purple uppercase tracking-wider">Create Launch STRIKE</p>
+              <p className="text-2xl font-bold uppercase tracking-wider">
+                <span className="text-neon-purple">CREATE </span>
+                <span style={{color: '#42d6d8'}}>LAUNCH </span>
+                <span className="text-neon-purple">STRIKE</span>
+              </p>
               <div className="pt-4">
                 <WalletMultiButton>CONNECT WALLET TO GET STARTED</WalletMultiButton>
               </div>
