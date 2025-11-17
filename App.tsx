@@ -197,7 +197,7 @@ const App: React.FC = () => {
             </div>
           )
         ) : (
-          <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-green border border-brand-border">
+          <div className="w-full max-w-2xl bg-brand-surface-transparent p-8 rounded-2xl shadow-lg shadow-glow-purple border border-brand-border">
             {view === 'form' && (
               <>
                 <h1 className="text-3xl font-bold mb-2 text-center">Create a New Solana Token</h1>
